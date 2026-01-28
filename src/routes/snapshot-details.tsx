@@ -31,34 +31,6 @@ const mapStatus = (status?: number): Status => {
 
 // Convert SnapshotDTO from backend to Snapshot for UI
 const mapSnapshotDTOtoSnapshot = (dto: SnapshotDTO): Snapshot => {
-  // Debug: log first PV values to see structure
-  if (dto.pvValues.length > 0) {
-    console.log('[Snapshot] First PV value from backend:', dto.pvValues[0]);
-    // Find a PV with setpoint value for debugging
-    const withSetpoint = dto.pvValues.find((pv) => pv.setpointValue !== null);
-    const withReadback = dto.pvValues.find((pv) => pv.readbackValue !== null);
-    if (withSetpoint) {
-      console.log(
-        '[Snapshot] Sample PV with setpoint:',
-        withSetpoint.pvName,
-        withSetpoint.setpointValue
-      );
-    }
-    if (withReadback) {
-      console.log(
-        '[Snapshot] Sample PV with readback:',
-        withReadback.pvName,
-        withReadback.readbackValue
-      );
-    }
-    // Count how many have values
-    const setpointCount = dto.pvValues.filter((pv) => pv.setpointValue !== null).length;
-    const readbackCount = dto.pvValues.filter((pv) => pv.readbackValue !== null).length;
-    console.log(
-      `[Snapshot] Values: ${setpointCount} with setpoint, ${readbackCount} with readback out of ${dto.pvValues.length} total`
-    );
-  }
-
   const pvs: PV[] = dto.pvValues.map((pvValue: PVValueDTO) => {
     const setpoint = pvValue.setpointValue;
     const readback = pvValue.readbackValue;
@@ -121,18 +93,10 @@ interface SearchParams {
   id?: string;
 }
 
-export const Route = createFileRoute('/snapshot-details')({
-  validateSearch: (search: Record<string, unknown>): SearchParams => {
-    return {
-      id: search.id as string | undefined,
-    };
-  },
-  component: SnapshotDetails,
-});
-
 function SnapshotDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const { id } = Route.useSearch();
 
   // Fetch all PVs (no pagination)
@@ -145,7 +109,7 @@ function SnapshotDetails() {
   }, [navigate, queryClient]);
 
   const handleRestore = useCallback((pvs: PV[]) => {
-    console.log('Restoring PVs:', pvs);
+    // eslint-disable-next-line no-alert
     alert(`Restoring ${pvs.length} PV(s) - This feature is not yet implemented`);
   }, []);
 
@@ -234,3 +198,10 @@ function SnapshotDetails() {
     />
   );
 }
+
+export const Route = createFileRoute('/snapshot-details')({
+  validateSearch: (search: Record<string, unknown>): SearchParams => ({
+    id: search.id as string | undefined,
+  }),
+  component: SnapshotDetails,
+});
