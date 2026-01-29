@@ -59,6 +59,22 @@ export const snapshotService = {
   },
 
   /**
+   * Update snapshot metadata (e.g., title and/or description)
+   *
+   * @param snapshotId - The snapshot ID to update
+   * @param data - Partial metadata to update
+   */
+  async updateSnapshot(
+    snapshotId: string,
+    data: { title?: string; description?: string }
+  ): Promise<SnapshotSummaryDTO> {
+    return apiClient.put<SnapshotSummaryDTO>(
+      `${API_CONFIG.endpoints.snapshots}/${snapshotId}`,
+      data
+    );
+  },
+
+  /**
    * Delete a snapshot by ID
    */
   async deleteSnapshot(snapshotId: string, deleteData: boolean = true): Promise<boolean> {

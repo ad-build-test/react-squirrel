@@ -20,12 +20,14 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import { Search, Delete } from '@mui/icons-material';
+import { Search, Edit, Delete } from '@mui/icons-material';
 import { Snapshot } from '../types';
+import { snapshotService } from '../services';
 
 interface SnapshotListPageProps {
   snapshots: Snapshot[];
   onSnapshotClick: (snapshot: Snapshot) => void;
+  onUpdateSnapshot?: (snapshot: Snapshot) => void;
   onDeleteSnapshot?: (snapshotId: string) => Promise<void>;
   isAdmin: boolean;
 }
@@ -33,6 +35,7 @@ interface SnapshotListPageProps {
 export function SnapshotListPage({
   snapshots,
   onSnapshotClick,
+  onUpdateSnapshot,
   onDeleteSnapshot,
   isAdmin,
 }: SnapshotListPageProps) {
@@ -40,6 +43,63 @@ export function SnapshotListPage({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [snapshotToDelete, setSnapshotToDelete] = useState<Snapshot | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [snapshotBeingEdited, setSnapshotBeingEdited] = useState<Snapshot | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const openEditDialog = (snapshot: Snapshot) => {
+    setSnapshotBeingEdited(snapshot);
+    setEditedTitle(snapshot.title);
+    setEditedDescription(snapshot.description);
+    setEditDialogOpen(true);
+  };
+
+  const hasChanges =
+    editedTitle !== snapshotBeingEdited?.title ||
+    editedDescription !== snapshotBeingEdited?.description;
+
+  const handleUpdateConfirm = async () => {
+    if (!snapshotBeingEdited) return;
+
+    if (!hasChanges) {
+      setEditDialogOpen(false);
+      return;
+    }
+    const prev = snapshotBeingEdited;
+
+    onUpdateSnapshot?.({
+      ...prev,
+      title: editedTitle,
+      description: editedDescription,
+    });
+
+    setEditDialogOpen(false);
+    setSnapshotBeingEdited(null);
+    setIsSaving(true);
+
+    try {
+      const response = await snapshotService.updateSnapshot(prev.uuid, {
+        title: editedTitle,
+        description: editedDescription,
+      });
+
+      // reconcile with server response
+      onUpdateSnapshot?.({
+        ...prev,
+        title: response.title,
+        description: response.description ?? '',
+        pvCount: response.pvCount,
+      });
+    } catch (err) {
+      console.error('Failed to update snapshot', err);
+      // rollback
+      onUpdateSnapshot?.(prev);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleDeleteClick = (e: React.MouseEvent, snapshot: Snapshot) => {
     e.stopPropagation(); // Prevent row click
@@ -154,7 +214,7 @@ export function SnapshotListPage({
                 onDoubleClick={() => onSnapshotClick(snapshot)}
               >
                 <TableCell>
-                  <Typography variant="body2" fontWeight={600} color="primary">
+                  <Typography variant="body2" fontWeight={600} color="text.primary">
                     {snapshot.title}
                   </Typography>
                 </TableCell>
@@ -171,15 +231,34 @@ export function SnapshotListPage({
                 </TableCell>
                 {isAdmin && (
                   <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={(e) => handleDeleteClick(e, snapshot)}
-                      title="Delete snapshot"
-                      disabled={!onDeleteSnapshot}
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
+                    <Stack direction="row" spacing={0.5} justifyContent="center">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditDialog(snapshot);
+                        }}
+                        title="Edit snapshot"
+                        sx={{
+                          color: '#0066cc',
+                          '&:hover': {
+                            color: '#005bb5',
+                          },
+                        }}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
+
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={(e) => handleDeleteClick(e, snapshot)}
+                        title="Delete snapshot"
+                        disabled={!onDeleteSnapshot}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
                 )}
               </TableRow>
@@ -194,6 +273,50 @@ export function SnapshotListPage({
           </Box>
         )}
       </TableContainer>
+
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Edit Snapshot</DialogTitle>
+
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
+          <Box sx={{ px: 3, pt: 1, borderBottom: '1px solid #eee' }}>
+            <TextField
+              fullWidth
+              label="Title"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              margin="normal"
+            />
+
+            <TextField
+              fullWidth
+              label="Description"
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+              margin="normal"
+              multiline
+              rows={2}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleUpdateConfirm}
+            disabled={isSaving || !hasChanges}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
