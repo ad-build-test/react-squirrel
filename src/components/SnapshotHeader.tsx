@@ -30,7 +30,7 @@ export function SnapshotHeader({ snapshot, onBack }: SnapshotHeaderProps) {
       <Typography variant="h6" color="text.secondary" fontWeight="bold">
         |
       </Typography>
-      <Typography variant="body1" fontWeight={600} color="primary">
+      <Typography variant="body1" fontWeight={600} color="text.primary">
         {snapshot?.title || 'Loading...'}
       </Typography>
       <Typography variant="h6" color="text.secondary" fontWeight="bold">

@@ -48,7 +48,7 @@ export interface UpdatePVElementDTO {
 export interface SnapshotSummaryDTO {
   id: string;
   title: string;
-  comment?: string;
+  description?: string;
   tags?: string[];
   createdDate: string;
   createdBy: string;
@@ -94,7 +94,7 @@ export interface PVValueDTO {
 
 export interface NewSnapshotDTO {
   title: string;
-  comment?: string;
+  description?: string;
   tags?: string[];
   pvIds?: string[];
 }
