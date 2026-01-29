@@ -1,5 +1,5 @@
 import { createColumnHelper, ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '@mui/material';
+import { Box, Checkbox } from '@mui/material';
 import { EpicsData, Severity } from '../../types';
 import { SeverityIcon, EpicsValueCell, LiveValueCell, PVNameCell, DeviceCell } from './ValueCells';
 
@@ -47,11 +47,13 @@ export function createPVColumns(options?: {
           />
         ),
         cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onChange={row.getToggleSelectedHandler()}
-            size="small"
-          />
+          <Box sx={{ overflow: 'visible' }}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onChange={row.getToggleSelectedHandler()}
+              size="small"
+            />
+          </Box>
         ),
         size: 50,
       }) as ColumnDef<PVRow, unknown>
@@ -59,14 +61,14 @@ export function createPVColumns(options?: {
   }
 
   // Severity column
-  columns.push(
-    columnHelper.accessor('severity', {
-      header: '',
-      cell: ({ getValue }) => <SeverityIcon severity={getValue()} />,
-      size: 50,
-      enableSorting: false,
-    }) as ColumnDef<PVRow, unknown>
-  );
+  // columns.push(
+  //   columnHelper.accessor('severity', {
+  //     header: '',
+  //     cell: ({ getValue }) => <SeverityIcon severity={getValue()} />,
+  //     size: 50,
+  //     enableSorting: false,
+  //   }) as ColumnDef<PVRow, unknown>
+  // );
 
   // Device column
   columns.push(
