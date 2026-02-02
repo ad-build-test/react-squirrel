@@ -345,59 +345,75 @@ export function TagPage({
               multiline
               rows={2}
             />
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
-            {selectedGroup && selectedGroup.tags.length > 0 ? (
-              <List sx={{ p: 0 }} subheader={<ListSubheader>Tags</ListSubheader>}>
-                {selectedGroup.tags.map((tag, idx) => (
-                  <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
-                    <ListItemText
-                      primary={tag.name}
-                      secondary={tag.description}
-                      sx={{ pr: 3, overflow: 'hidden' }}
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        style: {
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        },
-                      }}
-                    />
-                    <ListItemSecondaryAction>
-                      {onEditTag && (
-                        <IconButton
-                          edge="end"
-                          aria-label="edit tag"
-                          size="small"
-                          onClick={() => handleOpenTagDialog(tag)}
-                          color="default"
-                        >
-                          {isAdmin ? <Edit fontSize="small" /> : <NoteOutlined fontSize="small" />}
-                        </IconButton>
-                      )}
-                      {isAdmin && onDeleteTag && (
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          size="small"
-                          onClick={() => handleDeleteTag(tag)}
-                          color="error"
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      )}
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                No tags in this group
-              </Typography>
+            {isAdmin && (
+              <DialogActions sx={{ px: 0 }}>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button variant="contained" onClick={handleSave}>
+                  Save
+                </Button>
+              </DialogActions>
             )}
           </Box>
+
+          {editMode && (
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
+              {selectedGroup && selectedGroup.tags.length > 0 ? (
+                <List sx={{ p: 0 }} subheader={<ListSubheader>Tags</ListSubheader>}>
+                  {selectedGroup.tags.map((tag, idx) => (
+                    <>
+                      <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
+                        <ListItemText
+                          primary={tag.name}
+                          secondary={tag.description}
+                          sx={{ pr: 3, overflow: 'hidden' }}
+                          secondaryTypographyProps={{
+                            variant: 'subtitle2',
+                            style: {
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            },
+                          }}
+                        />
+                        <ListItemSecondaryAction>
+                          {onEditTag && (
+                            <IconButton
+                              edge="end"
+                              aria-label="edit tag"
+                              size="small"
+                              onClick={() => handleOpenTagDialog(tag)}
+                              color="default"
+                            >
+                              {isAdmin ? (
+                                <Edit fontSize="small" />
+                              ) : (
+                                <NoteOutlined fontSize="small" />
+                              )}
+                            </IconButton>
+                          )}
+                          {isAdmin && onDeleteTag && (
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              size="small"
+                              onClick={() => handleDeleteTag(tag)}
+                              color="error"
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          )}
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    </>
+                  ))}
+                </List>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                  No tags in this group
+                </Typography>
+              )}
+            </Box>
+          )}
 
           {isAdmin && editMode && onAddTag && (
             <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee' }}>
@@ -427,14 +443,11 @@ export function TagPage({
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>{isAdmin ? 'Cancel' : 'Close'}</Button>
-          {isAdmin && (
-            <Button variant="contained" onClick={handleSave}>
-              Save
-            </Button>
-          )}
-        </DialogActions>
+        {editMode && (
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Close</Button>
+          </DialogActions>
+        )}
       </Dialog>
 
       {/* Tag Dialog */}
