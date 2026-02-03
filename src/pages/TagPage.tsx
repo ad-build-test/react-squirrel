@@ -23,8 +23,10 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  InputAdornment,
+  Tooltip,
 } from '@mui/material';
-import { Add, Delete, Edit, NoteOutlined } from '@mui/icons-material';
+import { Add, Delete, Edit, NewReleasesOutlined, NoteOutlined } from '@mui/icons-material';
 import { TagGroup, Tag } from '../types';
 
 interface TagPageProps {
@@ -329,21 +331,45 @@ export function TagPage({
           <Box sx={{ px: 3, pt: 1, borderBottom: '1px solid #eee' }}>
             <TextField
               fullWidth
+              margin="normal"
+              disabled={!isAdmin}
               label="Title"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              margin="normal"
-              disabled={!isAdmin}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {editMode && selectedGroup && groupName !== selectedGroup.name && (
+                      <Tooltip title="Group title has unsaved changes">
+                        <NewReleasesOutlined color="info" />
+                      </Tooltip>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               fullWidth
+              margin="normal"
+              multiline
+              rows={2}
+              disabled={!isAdmin}
               label="Description"
               value={groupDescription}
               onChange={(e) => setGroupDescription(e.target.value)}
-              margin="normal"
-              disabled={!isAdmin}
-              multiline
-              rows={2}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {editMode &&
+                      selectedGroup &&
+                      groupDescription !== selectedGroup.description && (
+                        <Tooltip title="Group description has unsaved changes">
+                          <NewReleasesOutlined color="info" />
+                        </Tooltip>
+                      )}
+                  </InputAdornment>
+                ),
+              }}
             />
             {isAdmin && (
               <DialogActions sx={{ px: 0 }}>
