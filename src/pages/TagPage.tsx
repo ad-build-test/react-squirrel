@@ -175,7 +175,7 @@ export function TagPage({
     if (!selectedGroup || !onEditTag) return;
 
     try {
-      await onEditTag(selectedGroup.id, tag.name, tagName, tagDescription);
+      await onEditTag(selectedGroup.id, tag.id, tagName, tagDescription);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to edit tag:', err);
@@ -191,9 +191,7 @@ export function TagPage({
     if (!selectedGroup || !onDeleteTag) return;
 
     try {
-      // We need to find the tag ID - for now we're using tag name
-      // The backend API expects tag ID, so we'll need to update this
-      await onDeleteTag(selectedGroup.id, tag.name);
+      await onDeleteTag(selectedGroup.id, tag.id);
       // Refresh the selected group data
       const updatedGroup = tagGroups.find((g) => g.id === selectedGroup.id);
       if (updatedGroup) {

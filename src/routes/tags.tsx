@@ -128,40 +128,29 @@ function Tags() {
 
   const handleEditTag = async (
     groupId: string,
-    tagName: string,
+    tagId: string,
     newTagName: string,
     newTagDescription: string
   ) => {
     try {
-      // Find the tag ID from the tag name
-      const foundGroup = tagGroups.find((g) => g.id === groupId);
-      if (!foundGroup || !foundGroup.tags) {
-        throw new Error('Tag group not found');
-      }
-
-      const foundTag = foundGroup.tags.find((t) => t.name === tagName);
-      if (!foundTag) {
-        throw new Error('Tag not found');
-      }
-
-      await tagsService.updateTagInGroup(groupId, foundTag.id, {
+      await tagsService.updateTagInGroup(groupId, tagId, {
         name: newTagName,
         description: newTagDescription,
       });
 
       // Update local state for this specific group
       setTagGroups((prevGroups) =>
-        prevGroups.map((g) =>
-          g.id === groupId
+        prevGroups.map((group) =>
+          group.id === groupId
             ? {
-                ...g,
-                tags: g.tags.map((t) =>
-                  t.name === tagName
-                    ? { ...t, name: newTagName, description: newTagDescription }
-                    : t
+                ...group,
+                tags: group.tags.map((tag) =>
+                  tag.id === tagId
+                    ? { ...tag, name: newTagName, description: newTagDescription }
+                    : tag
                 ),
               }
-            : g
+            : group
         )
       );
     } catch (err) {
@@ -171,20 +160,9 @@ function Tags() {
     }
   };
 
-  const handleDeleteTag = async (groupId: string, tagName: string) => {
+  const handleDeleteTag = async (groupId: string, tagId: string) => {
     try {
-      // Find the tag ID from the tag name
-      const foundGroup = tagGroups.find((g) => g.id === groupId);
-      if (!foundGroup || !foundGroup.tags) {
-        throw new Error('Tag group not found');
-      }
-
-      const foundTag = foundGroup.tags.find((t) => t.name === tagName);
-      if (!foundTag) {
-        throw new Error('Tag not found');
-      }
-
-      await tagsService.removeTagFromGroup(groupId, foundTag.id);
+      await tagsService.removeTagFromGroup(groupId, tagId);
       await fetchTagGroups(); // Refresh the list
     } catch (err) {
       // eslint-disable-next-line no-console
