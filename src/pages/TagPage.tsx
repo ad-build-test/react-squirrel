@@ -158,11 +158,6 @@ export function TagPage({
     try {
       await onAddTag(selectedGroup.id, newTagName);
       setNewTagName('');
-      // Refresh the selected group data
-      const updatedGroup = tagGroups.find((g) => g.id === selectedGroup.id);
-      if (updatedGroup) {
-        setSelectedGroup(updatedGroup);
-      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to add tag:', err);
@@ -187,16 +182,10 @@ export function TagPage({
   const handleDeleteTag = async (tag: Tag) => {
     // eslint-disable-next-line no-alert, no-restricted-globals
     if (!confirm(`Delete tag "${tag.name}"?`)) return;
-
-    if (!selectedGroup || !onDeleteTag) return;
+    else if (!selectedGroup || !onDeleteTag) return;
 
     try {
       await onDeleteTag(selectedGroup.id, tag.id);
-      // Refresh the selected group data
-      const updatedGroup = tagGroups.find((g) => g.id === selectedGroup.id);
-      if (updatedGroup) {
-        setSelectedGroup(updatedGroup);
-      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to delete tag:', err);
@@ -447,7 +436,7 @@ export function TagPage({
                   label="New Tag Name"
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddNewTag();

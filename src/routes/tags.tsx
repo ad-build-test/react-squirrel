@@ -163,7 +163,18 @@ function Tags() {
   const handleDeleteTag = async (groupId: string, tagId: string) => {
     try {
       await tagsService.removeTagFromGroup(groupId, tagId);
-      await fetchTagGroups(); // Refresh the list
+
+      // Update local state for this specific group
+      setTagGroups((prevGroups) =>
+        prevGroups.map((group) =>
+          group.id === groupId
+            ? {
+                ...group,
+                tags: group.tags.filter((tag) => tag.id !== tagId),
+              }
+            : group
+        )
+      );
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to delete tag:', err);
