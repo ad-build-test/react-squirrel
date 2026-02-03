@@ -328,7 +328,7 @@ export function TagPage({
                   <InputAdornment position="end">
                     {editMode && selectedGroup && groupName !== selectedGroup.name && (
                       <Tooltip title="Group title has unsaved changes">
-                        <NewReleasesOutlined color="info" />
+                        <NewReleasesOutlined color="warning" />
                       </Tooltip>
                     )}
                   </InputAdornment>
@@ -351,7 +351,7 @@ export function TagPage({
                       selectedGroup &&
                       groupDescription !== selectedGroup.description && (
                         <Tooltip title="Group description has unsaved changes">
-                          <NewReleasesOutlined color="info" />
+                          <NewReleasesOutlined color="warning" />
                         </Tooltip>
                       )}
                   </InputAdornment>
