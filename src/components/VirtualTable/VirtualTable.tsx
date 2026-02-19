@@ -192,7 +192,7 @@ export function VirtualTable<T>({
                 transform: `translateY(${virtualRow.start}px)`,
                 display: 'flex',
                 alignItems: 'center',
-                cursor: onRowClick ? 'pointer' : 'default',
+                cursor: onRowClick ? 'default' : 'default',
                 '&:hover': {
                   backgroundColor: 'action.hover',
                 },

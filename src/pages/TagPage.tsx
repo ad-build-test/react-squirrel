@@ -274,7 +274,7 @@ export function TagPage({
                 key={group.id}
                 hover
                 sx={{ cursor: 'pointer' }}
-                onDoubleClick={() => handleRowClick(group)}
+                onClick={() => handleRowClick(group)}
               >
                 <TableCell>
                   <Chip label={group.name} color="primary" variant="outlined" />
