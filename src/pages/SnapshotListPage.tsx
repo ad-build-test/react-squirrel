@@ -93,6 +93,7 @@ export function SnapshotListPage({
         pvCount: response.pvCount,
       });
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to update snapshot', err);
       // rollback
       onUpdateSnapshot?.(prev);

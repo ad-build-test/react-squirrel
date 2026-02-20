@@ -1,7 +1,7 @@
 import { createColumnHelper, ColumnDef } from '@tanstack/react-table';
 import { Box, Checkbox } from '@mui/material';
 import { EpicsData, Severity } from '../../types';
-import { SeverityIcon, EpicsValueCell, LiveValueCell, PVNameCell, DeviceCell } from './ValueCells';
+import { EpicsValueCell, LiveValueCell, PVNameCell, DeviceCell } from './ValueCells';
 
 /**
  * Row data structure for PV tables
