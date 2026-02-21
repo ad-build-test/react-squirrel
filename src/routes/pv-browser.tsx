@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { PVBrowserPage } from '../pages';
 import { PV, Severity, Status } from '../types';
 import { pvService, tagsService } from '../services';
@@ -227,8 +227,11 @@ function PVBrowser() {
     }
   }, [fetchInitialPVs]);
 
-  // Call fetchTagGroupsAndPVs on mount
+  // Call fetchTagGroupsAndPVs on mount (once only)
+  const hasFetchedRef = useRef(false);
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
     fetchTagGroupsAndPVs();
   }, [fetchTagGroupsAndPVs]);
 
