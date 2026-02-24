@@ -192,7 +192,3 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed documentation on:
 - Component structure
 - API layer design
 - Performance optimizations
-
-## License
-
-[Add license information]
