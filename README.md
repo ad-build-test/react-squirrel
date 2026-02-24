@@ -2,7 +2,7 @@
 
 A web-based application for configuration management of EPICS Process Variables (PVs).
 
-Squirrel provides a responsive, high-performance interface for creating snapshots of control system states, comparing configurations, and managing PV settings. It communicates with a backend API (score-backend) that handles persistence and EPICS control system integration.
+Squirrel provides a responsive, high-performance interface for creating snapshots of control system states, comparing configurations, and managing PV settings. It communicates with a backend API ([react-squirrel-backend](https://github.com/slaclab/react-squirrel-backend)) that handles persistence and EPICS control system integration.
 
 ## Features
 
@@ -32,7 +32,7 @@ Squirrel provides a responsive, high-performance interface for creating snapshot
 
 - Node.js 18+
 - pnpm
-- Backend API running on `http://localhost:8080`
+- [Backend](https://github.com/slaclab/react-squirrel-backend) listening for requests on `http://localhost:8080`
 
 ### Installation
 
