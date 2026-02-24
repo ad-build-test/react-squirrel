@@ -31,19 +31,19 @@ Squirrel provides a responsive, high-performance interface for creating snapshot
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- pnpm
 - Backend API running on `http://localhost:8080`
 
 ### Installation
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Development
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 The app will be available at `http://localhost:5173`
@@ -51,16 +51,16 @@ The app will be available at `http://localhost:5173`
 ### Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 ### Code Quality
 
 ```bash
-npm run lint         # Run linter
-npm run lint:fix     # Fix linting issues
-npm run format       # Format code
-npm run format:check # Check formatting
+pnpm run lint         # Run linter
+pnpm run lint:fix     # Fix linting issues
+pnpm run format       # Format code
+pnpm run format:check # Check formatting
 ```
 
 ## Project Structure
