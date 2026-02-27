@@ -212,7 +212,7 @@ export function SnapshotListPage({
                 key={snapshot.uuid}
                 hover
                 sx={{ cursor: 'pointer' }}
-                onDoubleClick={() => onSnapshotClick(snapshot)}
+                onClick={() => onSnapshotClick(snapshot)}
               >
                 <TableCell>
                   <Typography variant="body2" fontWeight={600} color="text.primary">
