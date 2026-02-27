@@ -192,7 +192,7 @@ export function TagPage({
   const handleDeleteTag = async (tag: Tag) => {
     // eslint-disable-next-line no-alert, no-restricted-globals
     if (!confirm(`Delete tag "${tag.name}"?`)) return;
-    else if (!selectedGroup || !onDeleteTag) return;
+    if (!selectedGroup || !onDeleteTag) return;
 
     try {
       await onDeleteTag(selectedGroup.id, tag.id);
@@ -383,51 +383,49 @@ export function TagPage({
               {selectedGroup && selectedGroup.tags.length > 0 ? (
                 <List sx={{ p: 0 }} subheader={<ListSubheader>Tags</ListSubheader>}>
                   {selectedGroup.tags.map((tag, idx) => (
-                    <>
-                      <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
-                        <ListItemText
-                          primary={tag.name}
-                          secondary={tag.description}
-                          sx={{ pr: 3, overflow: 'hidden' }}
-                          secondaryTypographyProps={{
-                            variant: 'subtitle2',
-                            style: {
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            },
-                          }}
-                        />
-                        <ListItemSecondaryAction>
-                          {onEditTag && (
-                            <IconButton
-                              edge="end"
-                              aria-label="edit tag"
-                              size="small"
-                              onClick={() => handleOpenTagDialog(tag)}
-                              color="default"
-                            >
-                              {isAdmin ? (
-                                <Edit fontSize="small" />
-                              ) : (
-                                <NoteOutlined fontSize="small" />
-                              )}
-                            </IconButton>
-                          )}
-                          {isAdmin && onDeleteTag && (
-                            <IconButton
-                              edge="end"
-                              aria-label="delete"
-                              size="small"
-                              onClick={() => handleDeleteTag(tag)}
-                              color="error"
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          )}
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    </>
+                    <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
+                      <ListItemText
+                        primary={tag.name}
+                        secondary={tag.description}
+                        sx={{ pr: 3, overflow: 'hidden' }}
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          style: {
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          },
+                        }}
+                      />
+                      <ListItemSecondaryAction>
+                        {onEditTag && (
+                          <IconButton
+                            edge="end"
+                            aria-label="edit tag"
+                            size="small"
+                            onClick={() => handleOpenTagDialog(tag)}
+                            color="default"
+                          >
+                            {isAdmin ? (
+                              <Edit fontSize="small" />
+                            ) : (
+                              <NoteOutlined fontSize="small" />
+                            )}
+                          </IconButton>
+                        )}
+                        {isAdmin && onDeleteTag && (
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            size="small"
+                            onClick={() => handleDeleteTag(tag)}
+                            color="error"
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        )}
+                      </ListItemSecondaryAction>
+                    </ListItem>
                   ))}
                 </List>
               ) : (
