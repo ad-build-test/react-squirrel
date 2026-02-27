@@ -60,16 +60,6 @@ export function createPVColumns(options?: {
     );
   }
 
-  // Severity column
-  // columns.push(
-  //   columnHelper.accessor('severity', {
-  //     header: '',
-  //     cell: ({ getValue }) => <SeverityIcon severity={getValue()} />,
-  //     size: 50,
-  //     enableSorting: false,
-  //   }) as ColumnDef<PVRow, unknown>
-  // );
-
   // Device column
   columns.push(
     columnHelper.accessor('device', {
