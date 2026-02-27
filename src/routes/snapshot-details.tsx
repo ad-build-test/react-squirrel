@@ -82,7 +82,7 @@ const mapSnapshotDTOtoSnapshot = (dto: SnapshotDTO): Snapshot => {
   return {
     uuid: dto.id,
     title: dto.title,
-    description: dto.comment || '',
+    description: dto.description || '',
     pvs,
     pvCount: dto.pvCount,
     creation_time: new Date(dto.createdDate),

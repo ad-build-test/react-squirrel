@@ -20,7 +20,7 @@ export interface SnapshotProgress {
 
 interface SnapshotContextType {
   snapshotProgress: SnapshotProgress;
-  startSnapshot: (title: string, comment?: string) => void;
+  startSnapshot: (title: string, description?: string) => void;
   clearSnapshot: () => void;
 }
 
@@ -110,7 +110,7 @@ export function SnapshotProvider({ children }: SnapshotProviderProps) {
   );
 
   const startSnapshot = useCallback(
-    (title: string, comment?: string) => {
+    (title: string, description?: string) => {
       // Stop any existing polling
       stopPolling();
 
@@ -128,7 +128,7 @@ export function SnapshotProvider({ children }: SnapshotProviderProps) {
       snapshotService
         .createSnapshotAsync({
           title,
-          comment: comment || undefined,
+          description: description || undefined,
         })
         .then((result) => {
           // Start polling for job status

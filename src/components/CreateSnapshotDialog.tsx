@@ -18,7 +18,7 @@ interface CreateSnapshotDialogProps {
 
 export function CreateSnapshotDialog({ open, onClose }: CreateSnapshotDialogProps) {
   const [title, setTitle] = useState('');
-  const [comment, setComment] = useState('');
+  const [description, setDescription] = useState('');
   const { startSnapshot } = useSnapshot();
 
   const handleCreate = () => {
@@ -27,17 +27,17 @@ export function CreateSnapshotDialog({ open, onClose }: CreateSnapshotDialogProp
     }
 
     // Fire and forget - starts the snapshot in the background
-    startSnapshot(title.trim(), comment.trim() || undefined);
+    startSnapshot(title.trim(), description.trim() || undefined);
 
     // Reset form and close dialog immediately
     setTitle('');
-    setComment('');
+    setDescription('');
     onClose();
   };
 
   const handleClose = () => {
     setTitle('');
-    setComment('');
+    setDescription('');
     onClose();
   };
 
@@ -61,9 +61,9 @@ export function CreateSnapshotDialog({ open, onClose }: CreateSnapshotDialogProp
           />
 
           <TextField
-            label="Comment (optional)"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            label="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             fullWidth
             size="small"
             multiline

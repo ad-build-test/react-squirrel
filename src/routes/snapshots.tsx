@@ -1,3 +1,4 @@
+import React from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SnapshotListPage } from '../pages';
 import { Snapshot } from '../types';
@@ -9,16 +10,26 @@ function Snapshots() {
   const { isAdminMode } = useAdminMode();
   const { data: snapshots, isLoading, error } = useSnapshots();
   const deleteSnapshotMutation = useDeleteSnapshot();
+  const [localSnapshots, setLocalSnapshots] = React.useState<Snapshot[]>([]);
 
-  // Convert SnapshotSummaryDTO to Snapshot format for the UI
-  const formattedSnapshots: Snapshot[] = (snapshots || []).map((snapshot) => ({
-    uuid: snapshot.id,
-    title: snapshot.title,
-    description: snapshot.comment || '',
-    pvs: [], // Summary doesn't include PV details
-    pvCount: snapshot.pvCount || 0,
-    creation_time: new Date(snapshot.createdDate),
-  }));
+  React.useEffect(() => {
+    if (!snapshots) return;
+
+    setLocalSnapshots(
+      snapshots.map((snapshot) => ({
+        uuid: snapshot.id,
+        title: snapshot.title,
+        description: snapshot.description || '',
+        pvs: [],
+        pvCount: snapshot.pvCount || 0,
+        creation_time: new Date(snapshot.createdDate),
+      }))
+    );
+  }, [snapshots]);
+
+  const handleUpdateSnapshot = (updated: Snapshot) => {
+    setLocalSnapshots((prev) => prev.map((s) => (s.uuid === updated.uuid ? updated : s)));
+  };
 
   const handleSnapshotClick = (snapshot: Snapshot) => {
     navigate({ to: '/snapshot-details', search: { id: snapshot.uuid } });
@@ -38,8 +49,9 @@ function Snapshots() {
 
   return (
     <SnapshotListPage
-      snapshots={formattedSnapshots}
+      snapshots={localSnapshots}
       onSnapshotClick={handleSnapshotClick}
+      onUpdateSnapshot={handleUpdateSnapshot}
       onDeleteSnapshot={isAdminMode ? handleDeleteSnapshot : undefined}
       isAdmin={isAdminMode}
     />
