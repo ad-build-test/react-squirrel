@@ -313,7 +313,7 @@ export function SnapshotDetailsPage({
       <Dialog
         open={showRestoreDialog}
         onClose={() => setShowRestoreDialog(false)}
-        maxWidth="sm"
+        maxWidth="xs"
         fullWidth
       >
         <DialogTitle sx={{ px: 2 }}>
@@ -321,13 +321,6 @@ export function SnapshotDetailsPage({
             ? `Restore all ${pvsToRestore.length} PVs?`
             : `Restore ${selectedPVs.length} selected PV${selectedPVs.length > 1 ? 's' : ''}?`}
         </DialogTitle>
-        <DialogContent sx={{ px: 2, pb: 2 }}>
-          <Typography>
-            {selectedPVs.length === 0
-              ? `You are about to restore all ${pvsToRestore.length} PVs.`
-              : `You are about to restore ${selectedPVs.length} selected PV${selectedPVs.length > 1 ? 's' : ''}.`}
-          </Typography>
-        </DialogContent>
         <DialogActions sx={{ px: 2, pb: 2 }}>
           <Button onClick={() => setShowRestoreDialog(false)}>Cancel</Button>
           <Button onClick={confirmRestore} variant="contained" color="primary">
