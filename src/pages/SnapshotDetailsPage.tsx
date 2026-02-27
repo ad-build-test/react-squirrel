@@ -223,8 +223,29 @@ export function SnapshotDetailsPage({
     >
       <SnapshotHeader snapshot={snapshot} onBack={onBack} />
 
-      <Stack direction="row" spacing={2} sx={{ mb: 1, flexShrink: 0 }} alignItems="center">
-        <SearchBar value={searchText} onChange={setSearchText} placeholder="Search PVs..." />
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ mb: 1, flexShrink: 0 }}
+        alignItems="center"
+        justifyContent="space-between"
+      >
+        <Stack direction="row" spacing={0}>
+          <SearchBar value={searchText} onChange={setSearchText} placeholder="Search PVs..." />
+          <FormControlLabel
+            control={
+              <Checkbox
+                size="small"
+                checked={showOnlySelected}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setShowOnlySelected(e.target.checked)
+                }
+              />
+            }
+            label={`Show selected (${selectedPVs.length})`}
+            sx={{ ml: 1 }}
+          />
+        </Stack>
 
         <Box sx={{ display: 'flex', gap: 1.5, ml: 'auto' }}>
           <Button variant="outlined" startIcon={<Restore />} onClick={handleRestore} size="medium">
@@ -234,20 +255,6 @@ export function SnapshotDetailsPage({
             Compare
           </Button>
         </Box>
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              size="small"
-              checked={showOnlySelected}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setShowOnlySelected(e.target.checked)
-              }
-            />
-          }
-          label={`Show selected (${selectedPVs.length})`}
-          sx={{ ml: 1 }}
-        />
       </Stack>
 
       {/* Tag Filter Bar */}
