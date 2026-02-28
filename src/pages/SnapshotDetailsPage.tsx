@@ -3,10 +3,12 @@ import {
   Box,
   Stack,
   Button,
+  Checkbox,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  FormControlLabel,
   Typography,
   CircularProgress,
   List,
@@ -15,18 +17,10 @@ import {
   ListItemText as MuiListItemText,
 } from '@mui/material';
 import { Restore, Add } from '@mui/icons-material';
-import { Snapshot, PV, AnyEpicsType } from '../types';
+import { Snapshot, PV } from '../types';
 import { SnapshotHeader, SearchBar, PVTable, TagGroupSelect } from '../components';
 import { tagsService, snapshotService } from '../services';
 import { SnapshotSummaryDTO } from '../types/api';
-
-// Format EPICS value for display
-const formatValue = (value: AnyEpicsType | undefined): string => {
-  if (value === null || value === undefined) return '--';
-  if (typeof value === 'number') return value.toFixed(3);
-  if (Array.isArray(value)) return `[${value.length} elements]`;
-  return String(value);
-};
 
 interface SnapshotDetailsPageProps {
   snapshot: Snapshot | null;
@@ -51,6 +45,7 @@ export function SnapshotDetailsPage({
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const [availableSnapshots, setAvailableSnapshots] = useState<SnapshotSummaryDTO[]>([]);
   const [loadingSnapshots, setLoadingSnapshots] = useState(false);
+  const [showOnlySelected, setShowOnlySelected] = useState(false);
 
   // Fetch tag groups when component mounts
   useEffect(() => {
@@ -182,13 +177,6 @@ export function SnapshotDetailsPage({
     );
   }
 
-  const getRestoreDialogTitle = () => {
-    if (selectedPVs.length === 0) {
-      return `Restore all ${pvsToRestore.length} PVs?`;
-    }
-    return `Restore ${selectedPVs.length} selected PV${selectedPVs.length > 1 ? 's' : ''}?`;
-  };
-
   const getCompareDialogContent = () => {
     if (loadingSnapshots) {
       return (
@@ -235,8 +223,30 @@ export function SnapshotDetailsPage({
     >
       <SnapshotHeader snapshot={snapshot} onBack={onBack} />
 
-      <Stack direction="row" spacing={2} sx={{ mb: 1, flexShrink: 0 }} alignItems="center">
-        <SearchBar value={searchText} onChange={setSearchText} placeholder="Search PVs..." />
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ mb: 1, flexShrink: 0 }}
+        alignItems="center"
+        justifyContent="space-between"
+      >
+        <Stack direction="row" spacing={0}>
+          <SearchBar value={searchText} onChange={setSearchText} placeholder="Search PVs..." />
+          <FormControlLabel
+            control={
+              <Checkbox
+                size="small"
+                checked={showOnlySelected}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setShowOnlySelected(e.target.checked)
+                }
+              />
+            }
+            label={`Show selected (${selectedPVs.length})`}
+            sx={{ ml: 1 }}
+          />
+        </Stack>
+
         <Box sx={{ display: 'flex', gap: 1.5, ml: 'auto' }}>
           <Button variant="outlined" startIcon={<Restore />} onClick={handleRestore} size="medium">
             Restore
@@ -299,81 +309,26 @@ export function SnapshotDetailsPage({
       <Box
         sx={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
       >
-        <PVTable pvs={filteredPVs} searchFilter={searchText} onSelectionChange={setSelectedPVs} />
+        <PVTable
+          pvs={showOnlySelected ? selectedPVs : filteredPVs}
+          searchFilter={searchText}
+          onSelectionChange={setSelectedPVs}
+        />
       </Box>
 
       {/* Restore Confirmation Dialog */}
       <Dialog
         open={showRestoreDialog}
         onClose={() => setShowRestoreDialog(false)}
-        maxWidth="md"
+        maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>{getRestoreDialogTitle()}</DialogTitle>
-        <DialogContent dividers sx={{ p: 0, maxHeight: 400, overflow: 'auto' }}>
-          {/* Table Header */}
-          <Box
-            sx={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 1,
-              backgroundColor: 'background.paper',
-              borderBottom: 1,
-              borderColor: 'divider',
-              display: 'flex',
-              px: 2,
-              py: 1,
-            }}
-          >
-            <Box sx={{ flex: 2, fontWeight: 'bold', fontSize: '0.875rem' }}>PV Name</Box>
-            <Box sx={{ flex: 1, fontWeight: 'bold', fontSize: '0.875rem', textAlign: 'right' }}>
-              Saved Setpoint
-            </Box>
-          </Box>
-
-          {/* Table Body */}
-          {pvsToRestore.map((pv) => (
-            <Box
-              key={pv.uuid}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                px: 2,
-                py: 1,
-                borderBottom: 1,
-                borderColor: 'divider',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  flex: 2,
-                  fontSize: '0.875rem',
-                  fontFamily: 'monospace',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-                title={pv.setpoint}
-              >
-                {pv.setpoint}
-              </Box>
-              <Box
-                sx={{
-                  flex: 1,
-                  fontSize: '0.875rem',
-                  fontFamily: 'monospace',
-                  textAlign: 'right',
-                }}
-              >
-                {formatValue(pv.setpoint_data?.data)}
-              </Box>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
+        <DialogTitle sx={{ px: 2 }}>
+          {selectedPVs.length === 0
+            ? `Restore all ${pvsToRestore.length} PVs?`
+            : `Restore ${selectedPVs.length} selected PV${selectedPVs.length > 1 ? 's' : ''}?`}
+        </DialogTitle>
+        <DialogActions sx={{ px: 2, pb: 2 }}>
           <Button onClick={() => setShowRestoreDialog(false)}>Cancel</Button>
           <Button onClick={confirmRestore} variant="contained" color="primary">
             Restore
