@@ -11,3 +11,6 @@ build
 *.log
 .vscode
 .idea
+
+# Generated files
+src/routeTree.gen.ts
