@@ -1,0 +1,76 @@
+name: Build and Upload Tauri App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-upload-tauri:
+    permissions: 
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # if you add new targets, remember to add a new actions/upload-artifact call at the end of this workflow
+          - platform: 'ubuntu-22.04'
+            args: '--bundles rpm'
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          # cache is documented but unavailable as of v4.2
+          # when available, enable and remove separate npm setup below
+          # cache: true
+
+      - name: Install pnpm dependencies with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23.11.0
+          cache: pnpm
+      - run: pnpm install
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev
+
+      - name: Install Tauri
+        run: pnpm add -D @tauri-apps/cli@1
+
+      - name: Configure Tauri
+        run: |
+          pnpm tauri init \
+            --app-name "Squirrel" \
+            --window-title "Squirrel" \
+            --dist-dir ../dist \
+            --dev-path http://localhost:5173 \
+            --before-dev-command "pnpm dev" \
+            --before-build-command "pnpm build"
+
+      - name: Build Tauri package
+        id: build
+        uses: tauri-apps/tauri-action@v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >-
+            ${{ matrix.args }}
+            --config {"tauri":{"bundle":{"identifier":"edu.stanford.slac.squirrel"}}}
+
+      - name: Upload Tauri artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          # steps.build.outputs.artifactPaths uses absolute paths, which didn't resolve properly in `path`
+          name: squirrel-rpm
+          path: src-tauri/target/release/bundle/rpm/*.rpm
