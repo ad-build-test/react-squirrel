@@ -93,11 +93,4 @@ Ready to contribute? Here's how to set up `squirrel` for local development.
 Pull Request Guidelines
 -----------------------
 
-Before you submit a pull request, check that it meets these guidelines:
-
-1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put your
-   new functionality into a function with a docstring, and add the feature to
-   the list in README.rst.
-3. The pull request should work for Python 3.9 and up. Check the GitHub Actions status
-   and make sure that the tests pass for all supported Python versions.
+1. If the pull request adds functionality, any new functions should contain docstrings, and the feature should be added to the list in README.md.
