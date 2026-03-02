@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 1020" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/>
+    </filter>
+    <style>
+      .layer-label { font-size: 14px; font-weight: bold; fill: #333; }
+      .box-title { font-size: 12px; font-weight: bold; fill: #222; }
+      .box-subtitle { font-size: 10px; fill: #666; }
+      .box-detail { font-size: 10px; fill: #444; }
+      .edge-label { font-size: 9px; fill: #666; }
+    </style>
+    <!-- Arrow markers (consolidated) -->
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6c8ebf"/>
+    </marker>
+    <marker id="arrow-gold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#d4ac0d"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#82b366"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#c0392b"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1360" height="1020" fill="#fafafa" rx="8"/>
+
+  <!-- ==================== USER ==================== -->
+  <g transform="translate(640, 8)">
+    <circle cx="20" cy="12" r="10" fill="#4a90d9" stroke="#2c5f8a" stroke-width="1.5"/>
+    <line x1="20" y1="22" x2="20" y2="42" stroke="#2c5f8a" stroke-width="2"/>
+    <line x1="6" y1="30" x2="34" y2="30" stroke="#2c5f8a" stroke-width="2"/>
+    <line x1="20" y1="42" x2="8" y2="58" stroke="#2c5f8a" stroke-width="2"/>
+    <line x1="20" y1="42" x2="32" y2="58" stroke="#2c5f8a" stroke-width="2"/>
+    <text x="20" y="74" text-anchor="middle" class="box-title" fill="#2c5f8a">Operator</text>
+  </g>
+
+  <!-- Arrow: User straight down to UI Layer -->
+  <line x1="660" y1="85" x2="660" y2="100" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ==================== UI LAYER (y=100, h=200) ==================== -->
+  <rect x="40" y="100" width="1280" height="200" rx="10" fill="#e8f1fb" stroke="#6c8ebf" stroke-width="2" filter="url(#shadow)"/>
+  <text x="60" y="124" class="layer-label" fill="#2c5f8a">UI Layer</text>
+  <text x="155" y="124" style="font-size:11px;fill:#6c8ebf">React + MUI</text>
+
+  <!-- Routes -->
+  <rect x="60" y="138" width="180" height="145" rx="8" fill="#fff" stroke="#6c8ebf" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="150" y="158" text-anchor="middle" class="box-title">Routes</text>
+  <text x="150" y="173" text-anchor="middle" class="box-subtitle">TanStack Router</text>
+  <line x1="80" y1="180" x2="220" y2="180" stroke="#e0e0e0"/>
+  <text x="150" y="197" text-anchor="middle" class="box-detail">/snapshots</text>
+  <text x="150" y="212" text-anchor="middle" class="box-detail">/snapshot-details</text>
+  <text x="150" y="227" text-anchor="middle" class="box-detail">/comparison</text>
+  <text x="150" y="242" text-anchor="middle" class="box-detail">/pv-browser</text>
+  <text x="150" y="257" text-anchor="middle" class="box-detail">/tags</text>
+
+  <!-- Pages -->
+  <rect x="280" y="138" width="220" height="145" rx="8" fill="#fff" stroke="#6c8ebf" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="390" y="158" text-anchor="middle" class="box-title">Pages</text>
+  <text x="390" y="173" text-anchor="middle" class="box-subtitle">Presentational Components</text>
+  <line x1="300" y1="180" x2="480" y2="180" stroke="#e0e0e0"/>
+  <text x="390" y="197" text-anchor="middle" class="box-detail">SnapshotListPage</text>
+  <text x="390" y="212" text-anchor="middle" class="box-detail">SnapshotDetailsPage</text>
+  <text x="390" y="227" text-anchor="middle" class="box-detail">SnapshotComparisonPage</text>
+  <text x="390" y="242" text-anchor="middle" class="box-detail">PVBrowserPage</text>
+  <text x="390" y="257" text-anchor="middle" class="box-detail">TagPage, PVDetailsPage</text>
+
+  <!-- Shared Components -->
+  <rect x="540" y="138" width="230" height="145" rx="8" fill="#fff" stroke="#6c8ebf" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="655" y="158" text-anchor="middle" class="box-title">Shared Components</text>
+  <text x="655" y="173" text-anchor="middle" class="box-subtitle">React + MUI</text>
+  <line x1="560" y1="180" x2="750" y2="180" stroke="#e0e0e0"/>
+  <text x="655" y="197" text-anchor="middle" class="box-detail">Layout, Sidebar</text>
+  <text x="655" y="212" text-anchor="middle" class="box-detail">VirtualTable, PVTable</text>
+  <text x="655" y="227" text-anchor="middle" class="box-detail">CreateSnapshotDialog</text>
+  <text x="655" y="242" text-anchor="middle" class="box-detail">CSVImportDialog</text>
+  <text x="655" y="257" text-anchor="middle" class="box-detail">TagGroupSelect, SearchBar</text>
+
+  <!-- Custom Hooks -->
+  <rect x="810" y="138" width="200" height="145" rx="8" fill="#fff" stroke="#6c8ebf" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="910" y="158" text-anchor="middle" class="box-title">Custom Hooks</text>
+  <text x="910" y="173" text-anchor="middle" class="box-subtitle">React Hooks</text>
+  <line x1="830" y1="180" x2="990" y2="180" stroke="#e0e0e0"/>
+  <text x="910" y="197" text-anchor="middle" class="box-detail">useLiveValues</text>
+  <text x="910" y="212" text-anchor="middle" class="box-detail">useBufferedLiveData</text>
+  <text x="910" y="227" text-anchor="middle" class="box-detail">useServerFilters</text>
+
+  <!-- Types -->
+  <rect x="1050" y="138" width="240" height="145" rx="8" fill="#fff" stroke="#6c8ebf" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1170" y="158" text-anchor="middle" class="box-title">Types</text>
+  <text x="1170" y="173" text-anchor="middle" class="box-subtitle">TypeScript</text>
+  <line x1="1070" y1="180" x2="1270" y2="180" stroke="#e0e0e0"/>
+  <text x="1170" y="197" text-anchor="middle" class="box-detail">UI Models: Severity, Status,</text>
+  <text x="1170" y="212" text-anchor="middle" class="box-detail">EpicsData, PV, Snapshot, Tag</text>
+  <text x="1170" y="232" text-anchor="middle" class="box-detail">Backend DTOs: SnapshotDTO,</text>
+  <text x="1170" y="247" text-anchor="middle" class="box-detail">PVElementDTO, TagsGroupsDTO</text>
+
+  <!-- UI internal arrows -->
+  <line x1="240" y1="210" x2="280" y2="210" stroke="#6c8ebf" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="500" y1="210" x2="540" y2="210" stroke="#6c8ebf" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="770" y1="210" x2="810" y2="210" stroke="#6c8ebf" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- ==================== STATE LAYER (y=380, h=130) ==================== -->
+  <rect x="40" y="380" width="1280" height="130" rx="10" fill="#fef9e7" stroke="#d4ac0d" stroke-width="2" filter="url(#shadow)"/>
+  <text x="60" y="404" class="layer-label" fill="#7d6608">State Management</text>
+
+  <!-- React Context -->
+  <rect x="60" y="417" width="560" height="75" rx="8" fill="#fff" stroke="#d4ac0d" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="340" y="439" text-anchor="middle" class="box-title">React Context (Global State)</text>
+  <line x1="80" y1="446" x2="600" y2="446" stroke="#e0e0e0"/>
+  <text x="140" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">AdminMode</text>
+  <text x="270" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">Heartbeat</text>
+  <text x="400" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">LivePV</text>
+  <text x="520" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">Snapshot</text>
+  <text x="140" y="481" text-anchor="middle" class="box-detail">admin toggle</text>
+  <text x="270" y="481" text-anchor="middle" class="box-detail">health polling</text>
+  <text x="400" y="481" text-anchor="middle" class="box-detail">REST polling 2s</text>
+  <text x="520" y="481" text-anchor="middle" class="box-detail">async job progress</text>
+
+  <!-- React Query -->
+  <rect x="660" y="417" width="630" height="75" rx="8" fill="#fff" stroke="#d4ac0d" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="975" y="439" text-anchor="middle" class="box-title">TanStack React Query (Server State)</text>
+  <line x1="680" y1="446" x2="1270" y2="446" stroke="#e0e0e0"/>
+  <text x="760" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">useSnapshots</text>
+  <text x="880" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">usePVs</text>
+  <text x="1000" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">useDevices</text>
+  <text x="1150" y="465" text-anchor="middle" class="box-detail" fill="#2c5f8a">Mutations</text>
+  <text x="760" y="481" text-anchor="middle" class="box-detail">30s stale</text>
+  <text x="880" y="481" text-anchor="middle" class="box-detail">search + filter</text>
+  <text x="1000" y="481" text-anchor="middle" class="box-detail">5min stale</text>
+  <text x="1150" y="481" text-anchor="middle" class="box-detail">cache invalidation</text>
+
+  <!-- Arrows: UI to State (orthogonal routing to avoid X-crossing) -->
+  <!-- Routes (x=150) to React Query (x=975): route high at y=318 -->
+  <path d="M 150,283 L 150,318 L 975,318 L 975,417" stroke="#d4ac0d" stroke-width="1.5" fill="none" marker-end="url(#arrow-gold)"/>
+  <!-- Routes (x=150) to Context (x=340): short drop -->
+  <path d="M 170,283 L 170,350 L 340,350 L 340,417" stroke="#d4ac0d" stroke-width="1.5" fill="none" marker-end="url(#arrow-gold)"/>
+  <!-- Hooks (x=910) to Context (x=340): route low at y=345 -->
+  <path d="M 910,283 L 910,345 L 360,345 L 360,417" stroke="#d4ac0d" stroke-width="1.5" fill="none" marker-end="url(#arrow-gold)"/>
+
+  <!-- ==================== SERVICE LAYER (y=590, h=130) ==================== -->
+  <rect x="40" y="590" width="1280" height="130" rx="10" fill="#eafaf1" stroke="#82b366" stroke-width="2" filter="url(#shadow)"/>
+  <text x="60" y="614" class="layer-label" fill="#1e7e34">Service Layer</text>
+
+  <!-- API Client -->
+  <rect x="60" y="627" width="170" height="75" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="145" y="652" text-anchor="middle" class="box-title">APIClient</text>
+  <text x="145" y="668" text-anchor="middle" class="box-detail">Fetch API</text>
+  <text x="145" y="683" text-anchor="middle" class="box-detail">AbortController timeout</text>
+
+  <!-- Individual services (standardized 130px width, 20px gaps) -->
+  <rect x="250" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="315" y="650" text-anchor="middle" class="box-title" style="font-size:11px">snapshotService</text>
+  <text x="315" y="668" text-anchor="middle" class="box-detail">CRUD + async</text>
+
+  <rect x="400" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="465" y="650" text-anchor="middle" class="box-title" style="font-size:11px">pvService</text>
+  <text x="465" y="668" text-anchor="middle" class="box-detail">CRUD + live</text>
+
+  <rect x="550" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="615" y="650" text-anchor="middle" class="box-title" style="font-size:11px">tagsService</text>
+  <text x="615" y="668" text-anchor="middle" class="box-detail">groups + tags</text>
+
+  <rect x="700" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="765" y="650" text-anchor="middle" class="box-title" style="font-size:11px">jobService</text>
+  <text x="765" y="668" text-anchor="middle" class="box-detail">async status</text>
+
+  <rect x="850" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="915" y="650" text-anchor="middle" class="box-title" style="font-size:11px">heartbeatService</text>
+  <text x="915" y="668" text-anchor="middle" class="box-detail">health polling</text>
+
+  <rect x="1000" y="627" width="130" height="55" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1065" y="650" text-anchor="middle" class="box-title" style="font-size:11px">wsService</text>
+  <text x="1065" y="668" text-anchor="middle" class="box-detail">WebSocket client</text>
+
+  <!-- Utils -->
+  <rect x="1150" y="627" width="150" height="75" rx="8" fill="#fff" stroke="#82b366" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="1225" y="652" text-anchor="middle" class="box-title">Utilities</text>
+  <text x="1225" y="668" text-anchor="middle" class="box-detail">tolerance.ts</text>
+  <text x="1225" y="683" text-anchor="middle" class="box-detail">csvParser.ts</text>
+
+  <!-- Arrows: State to Services (orthogonal routing at staggered y-levels) -->
+  <!-- Context (x=340) -> snapshotService (x=315) -->
+  <path d="M 300,492 L 300,530 L 315,530 L 315,627" stroke="#82b366" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <!-- Context (x=340) -> pvService (x=465) -->
+  <path d="M 340,492 L 340,540 L 465,540 L 465,627" stroke="#82b366" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <!-- Context (x=340) -> heartbeatService (x=915) — dashed -->
+  <path d="M 380,492 L 380,570 L 915,570 L 915,627" stroke="#82b366" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#arrow-green)"/>
+  <!-- React Query (x=975) -> snapshotService (x=335, offset right to avoid overlap with Context arrow) -->
+  <path d="M 900,492 L 900,560 L 335,560 L 335,627" stroke="#82b366" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <!-- React Query (x=975) -> pvService (x=485, offset right to avoid overlap with Context arrow) -->
+  <path d="M 940,492 L 940,550 L 485,550 L 485,627" stroke="#82b366" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <!-- React Query (x=975) -> tagsService (x=615) -->
+  <path d="M 975,492 L 975,530 L 615,530 L 615,627" stroke="#82b366" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+
+  <!-- ==================== EXTERNAL LAYER (y=800, h=110) ==================== -->
+  <rect x="40" y="800" width="1280" height="110" rx="10" fill="#fdecea" stroke="#c0392b" stroke-width="2" filter="url(#shadow)"/>
+  <text x="60" y="824" class="layer-label" fill="#922b21">External Systems</text>
+
+  <!-- Backend -->
+  <rect x="100" y="838" width="320" height="55" rx="8" fill="#fff" stroke="#c0392b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="260" y="860" text-anchor="middle" class="box-title">Backend REST API</text>
+  <text x="260" y="878" text-anchor="middle" class="box-detail">Python  |  localhost:8080/v1/*</text>
+
+  <!-- WebSocket Server -->
+  <rect x="480" y="838" width="250" height="55" rx="8" fill="#fff" stroke="#c0392b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="605" y="860" text-anchor="middle" class="box-title">WebSocket Server</text>
+  <text x="605" y="878" text-anchor="middle" class="box-detail">/v1/ws/pvs</text>
+
+  <!-- EPICS -->
+  <rect x="790" y="838" width="320" height="55" rx="8" fill="#fff" stroke="#c0392b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="950" y="860" text-anchor="middle" class="box-title">EPICS Control System</text>
+  <text x="950" y="878" text-anchor="middle" class="box-detail">PV Network  |  Channel Access</text>
+
+  <!-- Arrows: Services to External -->
+  <path d="M 145,702 L 145,760 L 260,760 L 260,838" stroke="#c0392b" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)"/>
+  <text x="180" y="755" class="edge-label">HTTP/JSON</text>
+
+  <path d="M 1065,682 L 1065,770 L 605,770 L 605,838" stroke="#c0392b" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)"/>
+  <text x="870" y="765" class="edge-label">WebSocket</text>
+
+  <line x1="420" y1="865" x2="480" y2="865" stroke="#c0392b" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+
+  <line x1="730" y1="865" x2="790" y2="865" stroke="#c0392b" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+  <text x="745" y="857" class="edge-label">CA</text>
+
+  <!-- ==================== LEGEND (standalone, below diagram) ==================== -->
+  <g transform="translate(460, 935)">
+    <rect x="0" y="0" width="440" height="40" rx="6" fill="#fff" stroke="#ccc" stroke-width="1"/>
+    <rect x="15" y="14" width="12" height="12" rx="2" fill="#e8f1fb" stroke="#6c8ebf"/>
+    <text x="33" y="24" class="box-detail">UI Layer</text>
+    <rect x="110" y="14" width="12" height="12" rx="2" fill="#fef9e7" stroke="#d4ac0d"/>
+    <text x="128" y="24" class="box-detail">State Management</text>
+    <rect x="235" y="14" width="12" height="12" rx="2" fill="#eafaf1" stroke="#82b366"/>
+    <text x="253" y="24" class="box-detail">Service Layer</text>
+    <rect x="340" y="14" width="12" height="12" rx="2" fill="#fdecea" stroke="#c0392b"/>
+    <text x="358" y="24" class="box-detail">External Systems</text>
+  </g>
+</svg>

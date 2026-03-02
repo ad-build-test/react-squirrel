@@ -1,0 +1,180 @@
+<mxfile host="app.diagrams.net" agent="Claude" version="24.0.0">
+  <diagram name="Architecture" id="architecture">
+    <mxGraphModel dx="1200" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- User -->
+        <mxCell id="user" value="Operator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="660" y="10" width="40" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- UI Layer -->
+        <mxCell id="ui_layer" value="UI Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;dashed=0;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="1200" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- Routes -->
+        <mxCell id="routes" value="&lt;b&gt;Routes&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#555&quot;&gt;TanStack Router&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;/snapshots&lt;br&gt;/snapshot-details&lt;br&gt;/comparison&lt;br&gt;/pv-browser&lt;br&gt;/tags&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;verticalAlign=top;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="110" y="135" width="160" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Pages -->
+        <mxCell id="pages" value="&lt;b&gt;Pages&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#555&quot;&gt;Presentational Components&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;SnapshotListPage&lt;br&gt;SnapshotDetailsPage&lt;br&gt;SnapshotComparisonPage&lt;br&gt;PVBrowserPage&lt;br&gt;TagPage&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;verticalAlign=top;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="310" y="135" width="200" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Shared Components -->
+        <mxCell id="components" value="&lt;b&gt;Shared Components&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#555&quot;&gt;React + MUI&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Layout, Sidebar&lt;br&gt;VirtualTable, PVTable&lt;br&gt;CreateSnapshotDialog&lt;br&gt;CSVImportDialog&lt;br&gt;TagGroupSelect, SearchBar&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;verticalAlign=top;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="550" y="135" width="200" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Custom Hooks -->
+        <mxCell id="hooks" value="&lt;b&gt;Custom Hooks&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#555&quot;&gt;React Hooks&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;useLiveValues&lt;br&gt;useBufferedLiveData&lt;br&gt;useServerFilters&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;verticalAlign=top;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="790" y="135" width="180" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- Types -->
+        <mxCell id="types" value="&lt;b&gt;Types&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#555&quot;&gt;TypeScript&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;UI Models (Severity,&lt;br&gt;PV, Snapshot, Tag)&lt;br&gt;Backend DTOs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=12;verticalAlign=top;spacingTop=5;" parent="1" vertex="1">
+          <mxGeometry x="1010" y="135" width="160" height="145" as="geometry" />
+        </mxCell>
+
+        <!-- State Management Layer -->
+        <mxCell id="state_layer" value="State Management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;dashed=0;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="80" y="340" width="1200" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- React Context -->
+        <mxCell id="context" value="&lt;b&gt;React Context&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;AdminModeContext &amp;nbsp;|&amp;nbsp; HeartbeatContext &amp;nbsp;|&amp;nbsp; LivePVContext &amp;nbsp;|&amp;nbsp; SnapshotContext&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="110" y="380" width="520" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- React Query -->
+        <mxCell id="query" value="&lt;b&gt;TanStack React Query&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;useSnapshots &amp;nbsp;|&amp;nbsp; usePVs &amp;nbsp;|&amp;nbsp; useDevices &amp;nbsp;|&amp;nbsp; Mutations + Cache Invalidation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#d6b656;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="680" y="380" width="490" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Service Layer -->
+        <mxCell id="svc_layer" value="Service Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;dashed=0;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="80" y="510" width="1200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- API Client -->
+        <mxCell id="apiclient" value="&lt;b&gt;APIClient&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Fetch API + AbortController&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="110" y="545" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Services -->
+        <mxCell id="svc_snap" value="&lt;b&gt;snapshotService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="320" y="545" width="130" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_pv" value="&lt;b&gt;pvService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="470" y="545" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_tag" value="&lt;b&gt;tagsService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="600" y="545" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_job" value="&lt;b&gt;jobService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="730" y="545" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_hb" value="&lt;b&gt;heartbeatService&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="860" y="545" width="130" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="svc_ws" value="&lt;b&gt;wsService&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;WebSocket&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;fontSize=11;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="1010" y="545" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext_layer" value="External Systems" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1;verticalAlign=top;spacingTop=5;dashed=0;arcSize=8;" parent="1" vertex="1">
+          <mxGeometry x="80" y="680" width="1200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="backend" value="&lt;b&gt;Backend REST API&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Python &amp;nbsp;|&amp;nbsp; localhost:8080/v1/*&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="160" y="715" width="280" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="wsserver" value="&lt;b&gt;WebSocket Server&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;/v1/ws/pvs&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="520" y="715" width="220" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="epics" value="&lt;b&gt;EPICS Control System&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;PV Network &amp;nbsp;|&amp;nbsp; Channel Access&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=12;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="820" y="715" width="280" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: User to UI -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;strokeWidth=1.5;" parent="1" source="user" target="routes" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Routes to Pages -->
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=1.5;" parent="1" source="routes" target="pages" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Pages to Components -->
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=1.5;" parent="1" source="pages" target="components" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Components to Hooks -->
+        <mxCell id="e3b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=1.5;" parent="1" source="components" target="hooks" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Routes to Query -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d6b656;strokeWidth=1.5;" parent="1" source="routes" target="query" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Pages/Hooks to Context -->
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d6b656;strokeWidth=1.5;" parent="1" source="hooks" target="context" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Query to Services -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;" parent="1" source="query" target="svc_snap" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;" parent="1" source="query" target="svc_pv" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Context to Services -->
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;" parent="1" source="context" target="svc_hb" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;" parent="1" source="context" target="svc_pv" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Services to API Client -->
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;dashed=1;" parent="1" source="svc_snap" target="apiclient" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;dashed=1;" parent="1" source="svc_pv" target="apiclient" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8c" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=1.5;dashed=1;" parent="1" source="svc_tag" target="apiclient" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: API Client to Backend -->
+        <mxCell id="e9" value="&lt;font style=&quot;font-size:10px&quot;&gt;HTTP/JSON&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=1.5;" parent="1" source="apiclient" target="backend" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: wsService to WS Server -->
+        <mxCell id="e10" value="&lt;font style=&quot;font-size:10px&quot;&gt;WebSocket&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=1.5;" parent="1" source="svc_ws" target="wsserver" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Backend to EPICS -->
+        <mxCell id="e11" value="&lt;font style=&quot;font-size:10px&quot;&gt;Channel Access&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b85450;strokeWidth=1.5;" parent="1" source="backend" target="epics" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

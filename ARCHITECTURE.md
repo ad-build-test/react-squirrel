@@ -1,336 +1,306 @@
 # Squirrel Application Architecture
 
 ## Overview
-Squirrel is a desktop GUI application for Configuration Management of EPICS Process Variables (PVs). It allows users to create snapshots of control system states, compare configurations, and apply saved settings.
+
+Squirrel is a react-based configuration management application for EPICS Process Variables (PVs). It allows users to create snapshots of control system states, compare configurations, browse PVs with live values, and manage tag-based organization. The frontend communicates with a separate Python backend (`react-squirrel-backend`) over a REST API and WebSocket connection.
 
 ## High-Level Architecture Diagram
 
-```mermaid
-graph TB
-    subgraph "User Interface Layer (PySide6/Qt)"
-        UI[Main Window<br/>widgets/window.py]
-        NAV[Navigation Panel]
+![Architecture Diagram](docs/images/architecture.svg)
 
-        subgraph "Pages"
-            P1[Snapshot List Page]
-            P2[Snapshot Details Page]
-            P3[Comparison Page]
-            P4[PV Browser Page]
-            P5[Configure Tags Page]
-        end
+> Editable source: [docs/images/architecture.drawio](docs/images/architecture.drawio) (open with the [draw.io VS Code extension](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio))
 
-        subgraph "UI Components"
-            TABLES[Table Models & Views]
-            WIDGETS[Custom Widgets<br/>TagsWidget, DateRange, etc.]
-            DIALOGS[Dialogs & Popups<br/>PV Details, Filters, etc.]
-        end
-    end
+## Project Structure
 
-    subgraph "Application Logic Layer"
-        CLIENT[Client API<br/>client.py<br/>- snap()<br/>- apply()<br/>- search()<br/>- save()/delete()]
-
-        PERM[Permission Manager<br/>Admin Authentication]
-        DIFF[Diff Dispatcher<br/>Snapshot Comparisons]
-    end
-
-    subgraph "Data Model Layer"
-        MODEL[Core Data Models<br/>model.py]
-
-        subgraph "Data Classes"
-            EPICS[EpicsData<br/>value, status, severity]
-            PV[PV<br/>setpoint, readback, config]
-            SNAP[Snapshot<br/>collection of PVs]
-        end
-    end
-
-    subgraph "Data Access Layer"
-        subgraph "Backend (Persistence)"
-            BE[Abstract Backend<br/>backends/core.py]
-            BE1[FileStore Backend<br/>JSON files]
-            BE2[MongoDB Backend]
-            BE3[Directory Backend]
-            BE4[Test Backend<br/>in-memory]
-        end
-
-        subgraph "Control Layer (Hardware Comm)"
-            CL[Control Layer<br/>control_layer/core.py]
-            SHIM[Aioca Shim<br/>EPICS Channel Access]
-            TASK[Task Status<br/>async tracking]
-        end
-    end
-
-    subgraph "External Systems"
-        FS[(File Storage<br/>JSON)]
-        DB[(MongoDB<br/>Database)]
-        EPICS_SYS[EPICS Control System<br/>PV Network]
-    end
-
-    UI --> NAV
-    NAV --> P1 & P2 & P3 & P4 & P5
-    P1 & P2 & P3 & P4 & P5 --> TABLES
-    P1 & P2 & P3 & P4 & P5 --> WIDGETS
-    P1 & P2 & P3 & P4 & P5 --> DIALOGS
-
-    TABLES --> CLIENT
-    WIDGETS --> CLIENT
-    DIALOGS --> CLIENT
-
-    UI --> PERM
-    UI --> DIFF
-
-    CLIENT --> MODEL
-    CLIENT --> BE
-    CLIENT --> CL
-
-    MODEL --> EPICS & PV & SNAP
-
-    BE --> BE1 & BE2 & BE3 & BE4
-    BE1 --> FS
-    BE2 --> DB
-
-    CL --> SHIM
-    SHIM --> EPICS_SYS
-    CL --> TASK
-
-    classDef uiLayer fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    classDef logicLayer fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    classDef dataLayer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef accessLayer fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef external fill:#ffebee,stroke:#b71c1c,stroke-width:2px
-
-    class UI,NAV,P1,P2,P3,P4,P5,TABLES,WIDGETS,DIALOGS uiLayer
-    class CLIENT,PERM,DIFF logicLayer
-    class MODEL,EPICS,PV,SNAP dataLayer
-    class BE,BE1,BE2,BE3,BE4,CL,SHIM,TASK accessLayer
-    class FS,DB,EPICS_SYS external
 ```
-
-## Component Details
-
-### 1. User Interface Layer (PySide6/Qt)
-
-**Main Window** (`widgets/window.py`)
-- Entry point for the GUI
-- Stacked page navigation system
-- Singleton pattern implementation
-
-**Pages** (`pages/`)
-- `PVBrowserPage` - Browse and manage PVs
-- `SnapshotDetailsPage` - View snapshot contents
-- `SnapshotComparisonPage` - Compare two snapshots
-- `TagPage` - Configure tag groups
-
-**Components**
-- Custom table models with filtering/sorting
-- Tag widgets, date ranges, filter bars
-- PV detail popups and dialogs
-
-### 2. Application Logic Layer
-
-**Client API** (`client.py`)
-- Main programmatic interface
-- Configuration file parsing (INI format)
-- Core operations:
-  - `snap()` - Capture current PV states
-  - `apply()` - Push setpoints to hardware
-  - `search()` - Query snapshots and PVs
-  - `save()`/`delete()` - Persist changes
-
-**Permission Manager** (`permission_manager.py`)
-- Admin authentication singleton
-- Controls access to sensitive operations
-- Signal-based permission updates
-
-**Diff Dispatcher** (`widgets/diff_dispatcher.py`)
-- Coordinates snapshot comparisons
-- Signal-based diff notifications
-
-### 3. Data Model Layer
-
-**Core Models** (`model.py`)
-
-Three primary dataclasses:
-
-1. **EpicsData**
-   - Unified EPICS value container
-   - Fields: data, status, severity, timestamp
-   - Metadata: units, precision, alarm limits
-
-2. **PV (Process Variable)**
-   - Single control point definition
-   - Setpoint, readback, config addresses
-   - Associated data and metadata
-   - Tags and tolerances
-
-3. **Snapshot**
-   - Captured system state
-   - Collection of PVs with values
-   - Metadata: title, description, creation_time
-
-### 4. Data Access Layer
-
-**Backend System** (`backends/`)
-
-Abstract interface with multiple implementations:
-- **FileStore** - JSON file storage
-- **MongoDB** - Database backend
-- **Directory** - Directory-based storage
-- **Test** - In-memory for testing
-
-Common operations:
-- `search()` - Query with flexible operators (eq, lt, gt, like, isclose)
-- `save_entry()`/`delete_entry()`/`update_entry()`
-- Tag and meta-PV management
-
-**Control Layer** (`control_layer/`)
-
-Hardware communication layer:
-- Protocol-agnostic dispatcher
-- Pluggable "shims" for different protocols
-- **Aioca shim** - EPICS Channel Access implementation
-- Async operations with TaskStatus tracking
-
-Operations:
-- `get(address)` - Read PV value(s) → EpicsData
-- `put(address, value)` - Write value(s) to PV(s)
-- `subscribe()` - Monitor PV changes
-
-### 5. External Systems
-
-**Storage**
-- JSON files (FileStore backend)
-- MongoDB database (Mongo backend)
-
-**Control System**
-- EPICS network (Channel Access protocol)
-- Distributed PV infrastructure
-
-## Data Flow Examples
-
-### Snapshot Capture Flow
-```
-User clicks "Save Snapshot"
-    ↓
-Metadata Dialog (title, description, tags)
-    ↓
-Client.snap()
-    ├→ Get all PVs from backend
-    ├→ ControlLayer.get() for all PV addresses (async)
-    ├→ Create Snapshot with EpicsData values
-    └→ Backend.save_entry(snapshot)
-    ↓
-UI refreshes to show new snapshot
-```
-
-### Snapshot Apply Flow
-```
-User selects snapshot → "Apply"
-    ↓
-SnapshotDetailsPage displays values
-    ↓
-Client.apply(snapshot)
-    ├→ Filter PVs with setpoint values
-    ├→ ControlLayer.put() for all setpoints (async)
-    └→ Return TaskStatus list
-    ↓
-Hardware updated with saved values
-```
-
-### Search Flow
-```
-UI filter/search input
-    ↓
-Client.search(SearchTerm1, SearchTerm2, ...)
-    ↓
-Backend.search() applies operators
-    ↓
-Generator yields matching entries
-    ↓
-TableModel updates display
+react-squirrel/
+├── index.html                  # HTML entry point, mounts #root
+├── package.json                # Dependencies and scripts
+├── vite.config.ts              # Vite build config + dev proxy
+├── tsconfig.json               # TypeScript config (strict mode)
+├── .eslintrc.cjs               # ESLint config (Airbnb + TypeScript + Prettier)
+├── .prettierrc                 # Prettier formatting rules
+├── pnpm-lock.yaml              # pnpm lockfile
+├── sample_pvs.csv              # Example CSV for PV bulk import
+└── src/
+    ├── main.tsx                # App entry point + provider hierarchy
+    ├── routeTree.gen.ts        # Auto-generated route tree (TanStack Router)
+    ├── components/             # Reusable UI components
+    │   └── VirtualTable/       # Virtualized table system
+    ├── config/                 # API configuration and endpoints
+    ├── contexts/               # React Context providers
+    ├── hooks/                  # Custom hooks
+    │   └── queries/            # TanStack React Query hooks
+    ├── pages/                  # Page-level presentational components
+    ├── routes/                 # TanStack Router file-based route definitions
+    ├── services/               # API service layer
+    ├── styles/                 # Global CSS
+    ├── types/                  # TypeScript type definitions
+    └── utils/                  # Utility functions
 ```
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| GUI Framework | PySide6 (Qt 6) via QtPy abstraction |
-| Language | Python 3.10+ (requires ≤3.13) |
-| EPICS Interface | aioca (async Channel Access) |
-| Data Serialization | apischema |
-| Storage | FileStore (JSON), MongoDB |
-| Icons | Qt Awesome |
-| Testing | pytest, pytest-qt, caproto (IOC simulator) |
+| Category           | Technology                                                         |
+| ------------------ | ------------------------------------------------------------------ |
+| Framework          | React 18                                                           |
+| Language           | TypeScript 5.3 (strict mode)                                       |
+| Build Tool         | Vite 7                                                             |
+| UI Library         | Material UI (MUI) 5.15                                             |
+| Routing            | TanStack Router (file-based)                                       |
+| Server State       | TanStack React Query 5                                             |
+| Virtualized Tables | TanStack React Table 8 + React Virtual 3                           |
+| Live Data          | REST polling (primary), WebSocket via socket.io-client (secondary) |
+| Package Manager    | pnpm                                                               |
+| Linter / Formatter | ESLint (Airbnb config) + Prettier                                  |
+| Pre-commit         | Husky + lint-staged                                                |
+
+## Entry Point & Provider Hierarchy
+
+`src/main.tsx` creates the app with the following nested provider chain:
+
+```
+QueryClientProvider          — TanStack React Query cache (30s stale, 5min cache, 2 retries)
+  └─ AdminModeProvider       — Read-only vs admin mode toggle
+      └─ HeartbeatProvider   — Polls /v1/health/heartbeat every 2s
+          └─ LivePVProvider  — REST polls /v1/pvs/live every 2s
+              └─ SnapshotProvider  — Async snapshot creation + job polling
+                  └─ RouterProvider — TanStack Router renders matched route
+```
+
+> **Note:** `SnapshotProvider` also wraps `<Layout>` in `src/routes/__root.tsx`, meaning it is nested twice in the tree. The outer instance in `main.tsx` is the authoritative one; the inner one in `__root.tsx` shadows it.
+
+## Routing
+
+Routes use TanStack Router's file-based routing. The `@tanstack/router-vite-plugin` auto-generates `src/routeTree.gen.ts` from files in `src/routes/`.
+
+**Route-as-Controller Pattern**: Route files act as controllers — they own data fetching, mutation handlers, and state management. They pass data and callbacks as props to presentational page components.
+
+| Route                  | Path                          | Description                                                   |
+| ---------------------- | ----------------------------- | ------------------------------------------------------------- |
+| `__root.tsx`           | —                             | Root layout: MUI ThemeProvider + Layout shell                 |
+| `index.tsx`            | `/`                           | Redirects to `/snapshots`                                     |
+| `snapshots.tsx`        | `/snapshots`                  | Fetches snapshot summaries, handles inline edit/delete        |
+| `snapshot-details.tsx` | `/snapshot-details?id=`       | Fetches full snapshot by ID, maps DTOs to UI models           |
+| `comparison.tsx`       | `/comparison?mainId=&compId=` | Fetches two snapshots in parallel for side-by-side comparison |
+| `pv-browser.tsx`       | `/pv-browser`                 | Paginated PV browsing with search, filters, CRUD, CSV import  |
+| `tags.tsx`             | `/tags`                       | Full CRUD for tag groups and individual tags                  |
+
+## Pages & Components
+
+### Pages (`src/pages/`)
+
+Purely presentational components that receive data and callbacks via props.
+
+- **SnapshotListPage** — Searchable table of snapshots with inline edit dialog (title/description) and delete confirmation. Admin-gated actions column.
+- **SnapshotDetailsPage** — Snapshot header, tag-group filters, search bar, and PVTable with live value subscriptions. Compare and Restore flows.
+- **SnapshotComparisonPage** — Side-by-side comparison with a custom virtualized table. Rows color-coded for differences. Checkbox selection for batch operations.
+- **PVBrowserPage** — PV table with search, add PV dialog, CSV import, edit/delete PV, and infinite scroll via "Load More".
+- **TagPage** — Two-panel layout: tag group list (left) and tags within selected group (right). Full CRUD with admin gating.
+- **PVDetailsPage** — Single PV detail view showing device, setpoint/readback PV names, current values with status/severity, tag chips, and metadata (UUID, timestamps). Admin-gated edit button.
+
+### Shared Components (`src/components/`)
+
+- **Layout** — App shell with `Sidebar`, top `AppBar` (admin toggle, help, bug report), `LiveDataWarningBanner`, and content `<Outlet />`
+- **Sidebar** — Collapsible MUI Drawer (240px/60px). Navigation links + snapshot creation progress indicator + "Save Snapshot" button
+- **VirtualTable** (`components/VirtualTable/`) — Generic virtualized table using `@tanstack/react-table` (sorting, selection) + `@tanstack/react-virtual` (row virtualization). Sticky header, optional checkbox selection
+- **ConnectionIndicator** (`components/VirtualTable/`) — Per-PV connection status dot: green (fresh), yellow (stale >60s), red (disconnected), gray (unknown). MUI Tooltip for status text
+- **PVTable** — Wraps VirtualTable. Subscribes to live PV values via `useLiveValues`, runs tolerance checks, delegates columns to `createPVColumns()`
+- **CreateSnapshotDialog** — Modal for title/description input. Fires `startSnapshot()` (from SnapshotContext) and closes immediately; progress tracked in Sidebar
+- **CSVImportDialog** — File picker, CSV parser, tag validation, preview table, then bulk import
+- **TagGroupSelect** — Multi-select dropdown for a tag group with checkboxes
+- **LiveDataWarningBanner** — Animated alert when heartbeat reports the monitor is down
+- **PVFilterSidebar** — Secondary drawer with device, tag, and status filter checkboxes
+- **SearchBar** — Reusable text input with search icon and clearable input, used across multiple pages
+- **SnapshotHeader** — Breadcrumb-style header with back button, snapshot title, and creation timestamp
+- **UserAvatar** — User icon button with dropdown menu (profile, settings, logout). Shows user name and admin badge
+
+### Value Cell Components (`components/VirtualTable/ValueCells.tsx`)
+
+- **SeverityIcon** — Maps `Severity` enum to MUI icons
+- **EpicsValueCell** — Formats EPICS values in monospace
+- **LiveValueCell** — Highlights values outside tolerance in error color
+- **PVNameCell** / **DeviceCell** — Monospace display with overflow handling
+
+## Data Layer
+
+### API Client (`src/services/apiClient.ts`)
+
+Singleton `APIClient` class using the Fetch API with `AbortController` timeout (30s). Handles application-level errors where `errorCode !== 0`. Provides `get`, `post`, `put`, `delete` methods.
+
+### Services (`src/services/`)
+
+| Service              | Key Methods                                                                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **snapshotService**  | `findSnapshots`, `getSnapshotById`, `createSnapshotAsync`, `createSnapshotSync` _(deprecated)_, `updateSnapshot`, `deleteSnapshot`                       |
+| **pvService**        | `findPVs`, `findPVsPaged`, `searchPVs`, `getLiveValues`, `getAllLiveValues`, `getUniqueDevices`, `createPV`, `createMultiplePVs`, `updatePV`, `deletePV` |
+| **tagsService**      | `findAllTagGroups`, `getTagGroupById`, `createTagGroup`, `updateTagGroup`, `deleteTagGroup`, `addTagToGroup`, `updateTagInGroup`, `removeTagFromGroup`   |
+| **jobService**       | `getJobStatus` — polls async job status (`pending`, `running`, `completed`, `failed`)                                                                    |
+| **heartbeatService** | Polls `/v1/health/heartbeat`, subscriber callback pattern                                                                                                |
+| **wsService**        | WebSocket client for `/v1/ws/pvs` with per-PV subscriptions, pending queue, exponential backoff reconnect                                                |
+
+### Data Types (`src/types/`)
+
+**UI Models** (`types/models.ts`):
+
+- `Severity` enum (NO_ALARM, MINOR, MAJOR, INVALID)
+- `Status` enum (21 EPICS channel status codes)
+- `EpicsData` — Value container with data, status, severity, timestamp, units, limits
+- `PV` — Process variable with setpoint/readback/config EpicsData, tolerance, tags, device
+- `Snapshot` — Collection of PVs with title, description, timestamps
+- `Tag`, `TagGroup` — Tag structures with UUIDs
+
+**Backend DTOs** (`types/api.ts`):
+
+- `PVElementDTO`, `SnapshotDTO`, `SnapshotSummaryDTO`, `TagsGroupsDTO`
+- `JobDTO`, `JobCreatedDTO`, `FindParameter`
+- `ApiResultResponse<T>`, `PagedResultDTO<T>` — Standard response wrappers
+
+Routes map DTOs to UI models (e.g., severity/status enum mapping in `snapshot-details.tsx`).
+
+### API Configuration (`src/config/api.ts`)
+
+- Base URL is empty — all `/v1/*` requests go through Vite's dev proxy to `http://localhost:8080`
+- Endpoints: `/v1/snapshots`, `/v1/pvs`, `/v1/tags`, `/v1/jobs`, `/v1/health/heartbeat`
+- Pagination uses continuation tokens (`PagedResultDTO`)
+
+## State Management
+
+The app uses three complementary strategies:
+
+### 1. React Context (Global / Cross-cutting)
+
+| Context              | Purpose                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **AdminModeContext** | Boolean toggle for read-only vs admin mode. Default: read-only. Gates all mutation UI                               |
+| **HeartbeatContext** | Wraps heartbeatService. Exposes `isMonitorAlive`, `heartbeatAgeSeconds`                                             |
+| **LivePVContext**    | Manages PV name subscriptions. Polls `/v1/pvs/live` via POST every 2s. Exposes `liveValues: Map<string, EpicsData>` |
+| **SnapshotContext**  | Manages async snapshot creation. Polls `jobService.getJobStatus` every 1s. Exposes creation progress                |
+
+### 2. TanStack React Query (Server State)
+
+Query hooks in `src/hooks/queries/`:
+
+- **useSnapshots** / **useSnapshot** — Fetch snapshot list (30s stale) or single snapshot (60s stale)
+- **usePVs** / **usePVSearch** — PV list and server-side filtered search
+- **useDevices** — Unique device names (5min stale)
+- **useAvailableFilters** — Fetches devices and tag groups in parallel for filter UI (5min stale)
+- Mutations (`useCreateSnapshotAsync`, `useCreateSnapshotSync`, `useDeleteSnapshot`, `useCreatePV`, `useCreateMultiplePVs`, `useUpdatePV`, `useDeletePV`) with automatic cache invalidation
+
+### 3. Local Component State
+
+Route components manage UI-specific state with `useState`/`useRef`: pagination tokens, search queries, active filters, loading states. Tag mutations update local state directly after successful API calls for instant feedback.
+
+## Live PV Data
+
+Two strategies are implemented:
+
+**REST Polling (Active)** — `LivePVContext` maintains a `Set<string>` of subscribed PV names. Polls `/v1/pvs/live` via POST every 2 seconds. Components subscribe/unsubscribe via `useLiveValues` hook.
+
+**WebSocket (Available)** — `WebSocketContext` and `useBufferedLiveData` provide a WebSocket alternative via `/v1/ws/pvs`. The buffered hook uses a "game loop" pattern: incoming messages write to a `useRef` buffer (no re-render), and a `setInterval` flushes the buffer to React state at a configurable interval (default 500ms). This prevents render spam from high-frequency updates (40k+ PVs). Not currently mounted in the provider tree.
+
+## Data Flow Examples
+
+### Snapshot Capture (Async)
+
+```
+User clicks "Save Snapshot" (Sidebar)
+    ↓
+CreateSnapshotDialog collects title + description
+    ↓
+SnapshotContext.startSnapshot(title, description)
+    ├→ snapshotService.createSnapshotAsync() → returns jobId
+    └→ Polls jobService.getJobStatus(jobId) every 1s
+    ↓
+Sidebar shows progress (spinner → success/error icon)
+    ↓
+React Query cache invalidated → snapshot list refreshes
+```
+
+### Live PV Subscription
+
+```
+PVTable mounts with list of PV names
+    ↓
+useLiveValues(pvNames) → subscribes to LivePVContext
+    ↓
+LivePVContext adds PV names to subscription set
+    ↓
+Every 2s: POST /v1/pvs/live with subscribed PV names
+    ↓
+Response: Map<pvName, EpicsData> → stored in context state
+    ↓
+PVTable re-renders → checkTolerance() per row → color-coded cells
+    ↓
+On unmount: useLiveValues unsubscribes PV names
+```
+
+### Search / Filter Flow
+
+```
+User types in search bar or toggles filters
+    ↓
+Route component updates local filter state
+    ↓
+useServerFilters debounces by 300ms → debouncedFilters
+    ↓
+React Query hook fires with new params (or direct service call)
+    ↓
+pvService.findPVsPaged() / searchPVs() → backend query
+    ↓
+Results returned → table updates
+```
 
 ## Architecture Patterns
 
-1. **Three-Tier Architecture**
-   - Presentation (UI)
-   - Business Logic (Client API)
-   - Data Access (Backend + Control Layer)
-
-2. **Model-View Pattern**
-   - Qt's QAbstractTableModel + QSortFilterProxyModel
-   - Separation of data from presentation
-
-3. **Signal-Slot Architecture**
-   - PyQt/PySide signals for loose coupling
-   - Event-driven communication
-
-4. **Singleton Pattern**
-   - Window, PermissionManager, DiffDispatcher
-   - QtSingleton metaclass
-
-5. **Pluggable Backends**
-   - Abstract interface with multiple implementations
-   - Configuration-driven selection
-
-6. **Async/Await**
-   - asyncio for concurrent hardware operations
-   - TaskStatus wrapper for progress tracking
+1. **Route-as-Controller** — Route files own data fetching and mutations; page components are purely presentational
+2. **Optimistic UI** — Local state updated immediately on mutation, reconciled with server response (or rolled back on error)
+3. **Admin Mode Gate** — `AdminModeContext` boolean controls visibility of all destructive/mutation UI elements
+4. **Continuation Token Pagination** — Cursor-based pagination for PV browsing; pages append to local state (infinite scroll)
+5. **Game Loop Buffering** — `useBufferedLiveData` decouples WebSocket message receipt from React renders via ref buffer + interval flush
+6. **Singleton Services** — API client, heartbeat service, and WebSocket service are singletons for connection reuse
+7. **Query Key Factories** — Structured key objects (`snapshotKeys`, `pvKeys`) for consistent React Query cache management
 
 ## Configuration
 
-**Config File Format (INI)**
-```ini
-[backend]
-type = filestore
-path = ./db/filestore.json
+### Vite (`vite.config.ts`)
 
-[control_layer]
-ca = true
-pva = false
+- Plugins: `@vitejs/plugin-react` (JSX), `TanStackRouterVite` (auto-generates route tree)
+- Dev proxy: all `/v1` routes (HTTP + WebSocket) forwarded to `http://localhost:8080`
 
-[meta PVs]
-pvs = PV:Address1
-      PV:Address2
-```
+### TypeScript (`tsconfig.json`)
 
-**Search Paths:**
-1. `$SQUIRREL_CFG` environment variable
-2. `$XDG_CONFIG_HOME/squirrel.cfg`
-3. `~/.config/squirrel.cfg`
-4. Default demo config
+- Target: ES2020, bundler module resolution
+- Strict mode with `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
 
-## Entry Points
+### Linting & Formatting
 
-**CLI**: `squirrel/bin/main.py`
-```bash
-squirrel ui [--log] [--admin]    # Launch GUI
-squirrel demo                     # Demo mode
-```
-
-**Programmatic**: Import `squirrel.Client` for API access
+- ESLint: Airbnb + `airbnb-typescript` + `@typescript-eslint/recommended` + Prettier
+- Prettier: single quotes, semicolons, 100-char width, 2-space indent
+- Husky pre-commit: `eslint --fix` + `prettier --write` on staged `.ts/.tsx` files
 
 ## Key Files
 
-| Purpose | Files |
-|---------|-------|
-| Entry Point | `squirrel/bin/main.py` |
-| Client API | `squirrel/client.py` |
-| Data Models | `squirrel/model.py` |
-| Main Window | `squirrel/widgets/window.py` |
-| Pages | `squirrel/pages/*.py` |
-| Tables | `squirrel/tables/*.py` |
-| Backends | `squirrel/backends/*.py` |
-| Control Layer | `squirrel/control_layer/core.py` |
-| Permissions | `squirrel/permission_manager.py` |
+| Purpose                     | File                                           |
+| --------------------------- | ---------------------------------------------- |
+| Entry Point                 | `src/main.tsx`                                 |
+| Route Tree (auto-generated) | `src/routeTree.gen.ts`                         |
+| Root Layout                 | `src/routes/__root.tsx`                        |
+| API Client                  | `src/services/apiClient.ts`                    |
+| API Config                  | `src/config/api.ts`                            |
+| UI Data Models              | `src/types/models.ts`                          |
+| Backend DTOs                | `src/types/api.ts`                             |
+| Snapshot Service            | `src/services/snapshotService.ts`              |
+| PV Service                  | `src/services/pvService.ts`                    |
+| Tags Service                | `src/services/tagsService.ts`                  |
+| Job Service                 | `src/services/jobService.ts`                   |
+| Live PV Context             | `src/contexts/LivePVContext.tsx`               |
+| Admin Mode Context          | `src/contexts/AdminModeContext.tsx`            |
+| Snapshot Queries            | `src/hooks/queries/useSnapshots.ts`            |
+| PV Queries                  | `src/hooks/queries/usePVs.ts`                  |
+| Live Values Hook            | `src/hooks/useLiveValues.ts`                   |
+| VirtualTable                | `src/components/VirtualTable/VirtualTable.tsx` |
+| PV Columns                  | `src/components/VirtualTable/pvColumns.tsx`    |
+| Tolerance Utils             | `src/utils/tolerance.ts`                       |
+| CSV Parser                  | `src/utils/csvParser.ts`                       |
+| Vite Config                 | `vite.config.ts`                               |
