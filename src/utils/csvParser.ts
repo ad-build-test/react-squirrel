@@ -19,6 +19,12 @@ export interface ParsedCSVResult {
   errors: string[];
 }
 
+export interface ParseProgress {
+  processedRows: number;
+  totalRows: number;
+  status: 'parsing' | 'validating' | 'complete';
+}
+
 /**
  * Parse a single CSV line, handling quoted fields
  * Simple CSV parser that handles basic quoting
@@ -57,19 +63,17 @@ function parseCSVLine(line: string): string[] {
 }
 
 /**
- * Parse CSV file content into PV data structure
- *
- * CSV Format (matches Python parse_csv_to_dict):
- * - Required columns: "Setpoint" or "Readback" (at least one)
- * - Optional columns: "Device", "Description"
- * - Any additional columns are treated as tag groups
- * - Tag values can be comma-separated (e.g., "tag1, tag2")
- * - Filters out 'nan' and 'none' values
+ * Async CSV parser with progress feedback for large files
+ * Processes the file in chunks to prevent UI blocking and provides progress updates
  *
  * @param csvContent - Raw CSV file content as string
+ * @param onProgress - Optional callback for progress updates (processedRows, totalRows, status)
  * @returns Parsed PV data with tag groups and any errors
  */
-export function parseCSVToPVs(csvContent: string): ParsedCSVResult {
+export async function parseCSVToPVsAsync(
+  csvContent: string,
+  onProgress?: (progress: ParseProgress) => void
+): Promise<ParsedCSVResult> {
   const errors: string[] = [];
   const data: ParsedCSVRow[] = [];
 
@@ -100,58 +104,81 @@ export function parseCSVToPVs(csvContent: string): ParsedCSVResult {
   const standardColumns = ['Setpoint', 'Readback', 'Device', 'Description'];
   const groupColumns = cleanedHeaders.filter((col) => !standardColumns.includes(col));
 
-  // Parse data rows (starting from row 2 in 1-indexed terms, row 1 in 0-indexed)
-  for (let i = 1; i < lines.length; i += 1) {
-    const line = lines[i].trim();
-    if (line) {
-      const rowValues = parseCSVLine(line);
+  // Process data rows in chunks to prevent blocking
+  const totalRows = lines.length - 1; // Exclude header
+  const chunkSize = 100; // Process 100 rows at a time
 
-      // Create a row dictionary
-      const rowDict: Record<string, string> = {};
-      cleanedHeaders.forEach((header, index) => {
-        rowDict[header] = index < rowValues.length ? rowValues[index].trim() : '';
-      });
+  for (let start = 1; start < lines.length; start += chunkSize) {
+    const chunkEnd = Math.min(start + chunkSize, lines.length);
+    const chunkLines = lines.slice(start, chunkEnd);
 
-      const setpoint = rowDict.Setpoint || '';
-      const readback = rowDict.Readback || '';
+    // Process chunk
+    for (let i = 0; i < chunkLines.length; i += 1) {
+      const line = chunkLines[i].trim();
+      if (line) {
+        const rowValues = parseCSVLine(line);
 
-      // Only process row if at least one of setpoint or readback is present
-      if (setpoint || readback) {
-        const device = rowDict.Device || '';
-        const description = rowDict.Description || '';
-
-        // Parse tag groups
-        const groups: Record<string, string[]> = {};
-
-        groupColumns.forEach((groupName) => {
-          const cellValue = rowDict[groupName] || '';
-          const trimmedValue = cellValue.trim();
-
-          if (
-            trimmedValue &&
-            trimmedValue.toLowerCase() !== 'nan' &&
-            trimmedValue.toLowerCase() !== 'none'
-          ) {
-            // Split comma-separated values and filter
-            const tagValues = trimmedValue
-              .split(',')
-              .map((val) => val.trim())
-              .filter((val) => val);
-            groups[groupName] = tagValues;
-          } else {
-            groups[groupName] = [];
-          }
+        // Create a row dictionary
+        const rowDict: Record<string, string> = {};
+        cleanedHeaders.forEach((header, index) => {
+          rowDict[header] = index < rowValues.length ? rowValues[index].trim() : '';
         });
 
-        data.push({
-          Setpoint: setpoint,
-          Readback: readback,
-          Device: device,
-          Description: description,
-          groups,
-        });
+        const setpoint = rowDict.Setpoint || '';
+        const readback = rowDict.Readback || '';
+
+        // Only process row if at least one of setpoint or readback is present
+        if (setpoint || readback) {
+          const device = rowDict.Device || '';
+          const description = rowDict.Description || '';
+
+          // Parse tag groups
+          const groups: Record<string, string[]> = {};
+
+          groupColumns.forEach((groupName) => {
+            const cellValue = rowDict[groupName] || '';
+            const trimmedValue = cellValue.trim();
+
+            if (
+              trimmedValue &&
+              trimmedValue.toLowerCase() !== 'nan' &&
+              trimmedValue.toLowerCase() !== 'none'
+            ) {
+              // Split comma-separated values and filter
+              const tagValues = trimmedValue
+                .split(',')
+                .map((val) => val.trim())
+                .filter((val) => val);
+              groups[groupName] = tagValues;
+            } else {
+              groups[groupName] = [];
+            }
+          });
+
+          data.push({
+            Setpoint: setpoint,
+            Readback: readback,
+            Device: device,
+            Description: description,
+            groups,
+          });
+        }
       }
     }
+
+    // Report progress and yield control to prevent blocking
+    const processedRows = Math.min(start + chunkLines.length - 1, totalRows);
+    if (onProgress) {
+      onProgress({
+        processedRows,
+        totalRows,
+        status: 'parsing',
+      });
+    }
+
+    // Yield control to allow UI updates
+    // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
   return {

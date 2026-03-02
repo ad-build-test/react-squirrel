@@ -21,10 +21,11 @@ import {
 } from '@mui/material';
 import { Upload } from '@mui/icons-material';
 import {
-  parseCSVToPVs,
+  parseCSVToPVsAsync,
   createTagMapping,
   createValidationSummary,
   ParsedCSVRow,
+  ParseProgress,
 } from '../utils/csvParser';
 
 interface CSVImportDialogProps {
@@ -50,6 +51,8 @@ export function CSVImportDialog({
   const [importing, setImporting] = useState(false);
   const [fileSelected, setFileSelected] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  const [parsingProgress, setParsingProgress] = useState<ParseProgress | null>(null);
+  const [parsing, setParsing] = useState(false);
 
   const handleClose = () => {
     setCSVData([]);
@@ -67,39 +70,85 @@ export function CSVImportDialog({
     if (!file) return;
 
     try {
+      setParsing(true);
+      setParsingProgress({ processedRows: 0, totalRows: 0, status: 'parsing' });
+      setParseErrors([]);
+      setCSVData([]);
+      setValidationSummary('');
+      setFileSelected(false);
+
       const content = await file.text();
-      const result = parseCSVToPVs(content);
+
+      // Use async parser for better performance with large files
+      const result = await parseCSVToPVsAsync(content, (progress) => {
+        setParsingProgress(progress);
+      });
 
       if (result.errors.length > 0) {
         setParseErrors(result.errors);
         setCSVData([]);
         setValidationSummary('');
         setFileSelected(false);
+        setParsing(false);
+        setParsingProgress(null);
         return;
       }
 
       setCSVData(result.data);
       setParseErrors([]);
       setFileSelected(true);
+      setParsing(false);
+      setParsingProgress(null);
 
-      // Validate tags
+      // Validate tags with progress feedback
       if (result.data.length > 0) {
-        // Collect all rejected groups and values across all rows
+        setParsing(true);
+        setParsingProgress({
+          processedRows: 0,
+          totalRows: result.data.length,
+          status: 'validating',
+        });
+
+        // PERFORMANCE: Collect all rejected groups and values across all rows
+        // This validation ensures that only valid tag groups and values are imported
         const allRejectedGroups = new Set<string>();
         const allRejectedValues: Record<string, Set<string>> = {};
 
-        result.data.forEach((row) => {
-          const mapping = createTagMapping(row.groups, availableTagGroups);
+        // PERFORMANCE: Process validation in chunks to prevent blocking the main thread
+        // Chunk size of 50 provides good balance between performance and responsiveness
+        const chunkSize = 50;
+        for (let start = 0; start < result.data.length; start += chunkSize) {
+          const chunk = result.data.slice(start, start + chunkSize);
 
-          mapping.rejectedGroups.forEach((group) => allRejectedGroups.add(group));
+          // PERFORMANCE: Process each row in the current chunk
+          chunk.forEach((row) => {
+            const mapping = createTagMapping(row.groups, availableTagGroups);
 
-          Object.entries(mapping.rejectedValues).forEach(([group, values]) => {
-            if (!allRejectedValues[group]) {
-              allRejectedValues[group] = new Set();
-            }
-            values.forEach((value) => allRejectedValues[group].add(value));
+            // Collect rejected groups (groups that don't exist in backend)
+            mapping.rejectedGroups.forEach((group) => allRejectedGroups.add(group));
+
+            // Collect rejected values (values that don't exist for their group in backend)
+            Object.entries(mapping.rejectedValues).forEach(([group, values]) => {
+              if (!allRejectedValues[group]) {
+                allRejectedValues[group] = new Set();
+              }
+              values.forEach((value) => allRejectedValues[group].add(value));
+            });
           });
-        });
+
+          // PERFORMANCE: Update progress indicator for real-time UI feedback
+          const processedRows = Math.min(start + chunk.length, result.data.length);
+          setParsingProgress({
+            processedRows,
+            totalRows: result.data.length,
+            status: 'validating',
+          });
+
+          // PERFORMANCE: Yield control to allow UI updates and prevent blocking
+          // This is crucial for maintaining responsive UI during validation of large datasets
+          // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
 
         // Convert sets to arrays
         const rejectedGroups = Array.from(allRejectedGroups);
@@ -110,6 +159,8 @@ export function CSVImportDialog({
 
         const summary = createValidationSummary(rejectedGroups, rejectedValues);
         setValidationSummary(summary);
+        setParsing(false);
+        setParsingProgress(null);
       }
     } catch (error) {
       setParseErrors([
@@ -118,6 +169,8 @@ export function CSVImportDialog({
       setCSVData([]);
       setValidationSummary('');
       setFileSelected(false);
+      setParsing(false);
+      setParsingProgress(null);
     }
 
     // Reset file input
@@ -158,12 +211,34 @@ export function CSVImportDialog({
                 variant="contained"
                 component="span"
                 startIcon={<Upload />}
-                disabled={importing}
+                disabled={importing || parsing}
               >
                 Select CSV File
               </Button>
             </label>
           </Box>
+
+          {/* Parsing Progress */}
+          {parsing && parsingProgress && (
+            <Alert severity="info">
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CircularProgress size={20} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {parsingProgress.status === 'parsing'
+                      ? 'Parsing CSV file...'
+                      : 'Validating tags...'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Processed {parsingProgress.processedRows} of {parsingProgress.totalRows} rows
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  {Math.round((parsingProgress.processedRows / parsingProgress.totalRows) * 100)}%
+                </Typography>
+              </Box>
+            </Alert>
+          )}
 
           {/* CSV Format Instructions */}
           <Alert severity="info">
