@@ -23,8 +23,10 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  InputAdornment,
+  Tooltip,
 } from '@mui/material';
-import { Add, Delete, Edit, NoteOutlined } from '@mui/icons-material';
+import { Add, Delete, Edit, NewReleasesOutlined, NoteOutlined } from '@mui/icons-material';
 import { TagGroup, Tag } from '../types';
 
 interface TagPageProps {
@@ -156,11 +158,6 @@ export function TagPage({
     try {
       await onAddTag(selectedGroup.id, newTagName);
       setNewTagName('');
-      // Refresh the selected group data
-      const updatedGroup = tagGroups.find((g) => g.id === selectedGroup.id);
-      if (updatedGroup) {
-        setSelectedGroup(updatedGroup);
-      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to add tag:', err);
@@ -173,7 +170,7 @@ export function TagPage({
     if (!selectedGroup || !onEditTag) return;
 
     try {
-      await onEditTag(selectedGroup.id, tag.name, tagName, tagDescription);
+      await onEditTag(selectedGroup.id, tag.id, tagName, tagDescription);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to edit tag:', err);
@@ -185,18 +182,10 @@ export function TagPage({
   const handleDeleteTag = async (tag: Tag) => {
     // eslint-disable-next-line no-alert, no-restricted-globals
     if (!confirm(`Delete tag "${tag.name}"?`)) return;
-
     if (!selectedGroup || !onDeleteTag) return;
 
     try {
-      // We need to find the tag ID - for now we're using tag name
-      // The backend API expects tag ID, so we'll need to update this
-      await onDeleteTag(selectedGroup.id, tag.name);
-      // Refresh the selected group data
-      const updatedGroup = tagGroups.find((g) => g.id === selectedGroup.id);
-      if (updatedGroup) {
-        setSelectedGroup(updatedGroup);
-      }
+      await onDeleteTag(selectedGroup.id, tag.id);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to delete tag:', err);
@@ -329,75 +318,113 @@ export function TagPage({
           <Box sx={{ px: 3, pt: 1, borderBottom: '1px solid #eee' }}>
             <TextField
               fullWidth
+              margin="normal"
+              disabled={!isAdmin}
               label="Title"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              margin="normal"
-              disabled={!isAdmin}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {editMode && selectedGroup && groupName !== selectedGroup.name && (
+                      <Tooltip title="Group title has unsaved changes">
+                        <NewReleasesOutlined color="warning" />
+                      </Tooltip>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               fullWidth
+              margin="normal"
+              multiline
+              rows={2}
+              disabled={!isAdmin}
               label="Description"
               value={groupDescription}
               onChange={(e) => setGroupDescription(e.target.value)}
-              margin="normal"
-              disabled={!isAdmin}
-              multiline
-              rows={2}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {editMode &&
+                      selectedGroup &&
+                      groupDescription !== selectedGroup.description && (
+                        <Tooltip title="Group description has unsaved changes">
+                          <NewReleasesOutlined color="warning" />
+                        </Tooltip>
+                      )}
+                  </InputAdornment>
+                ),
+              }}
             />
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
-            {selectedGroup && selectedGroup.tags.length > 0 ? (
-              <List sx={{ p: 0 }} subheader={<ListSubheader>Tags</ListSubheader>}>
-                {selectedGroup.tags.map((tag, idx) => (
-                  <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
-                    <ListItemText
-                      primary={tag.name}
-                      secondary={tag.description}
-                      sx={{ pr: 3, overflow: 'hidden' }}
-                      secondaryTypographyProps={{
-                        variant: 'subtitle2',
-                        style: {
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        },
-                      }}
-                    />
-                    <ListItemSecondaryAction>
-                      {onEditTag && (
-                        <IconButton
-                          edge="end"
-                          aria-label="edit tag"
-                          size="small"
-                          onClick={() => handleOpenTagDialog(tag)}
-                          color="default"
-                        >
-                          {isAdmin ? <Edit fontSize="small" /> : <NoteOutlined fontSize="small" />}
-                        </IconButton>
-                      )}
-                      {isAdmin && onDeleteTag && (
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          size="small"
-                          onClick={() => handleDeleteTag(tag)}
-                          color="error"
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      )}
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                No tags in this group
-              </Typography>
+            {isAdmin && (
+              <DialogActions sx={{ px: 0 }}>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button variant="contained" onClick={handleSave}>
+                  Save
+                </Button>
+              </DialogActions>
             )}
           </Box>
+
+          {editMode && (
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
+              {selectedGroup && selectedGroup.tags.length > 0 ? (
+                <List sx={{ p: 0 }} subheader={<ListSubheader>Tags</ListSubheader>}>
+                  {selectedGroup.tags.map((tag, idx) => (
+                    <ListItem key={tag.id} divider={idx < selectedGroup.tags.length - 1}>
+                      <ListItemText
+                        primary={tag.name}
+                        secondary={tag.description}
+                        sx={{ pr: 3, overflow: 'hidden' }}
+                        secondaryTypographyProps={{
+                          variant: 'subtitle2',
+                          style: {
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          },
+                        }}
+                      />
+                      <ListItemSecondaryAction>
+                        {onEditTag && (
+                          <IconButton
+                            edge="end"
+                            aria-label="edit tag"
+                            size="small"
+                            onClick={() => handleOpenTagDialog(tag)}
+                            color="default"
+                          >
+                            {isAdmin ? (
+                              <Edit fontSize="small" />
+                            ) : (
+                              <NoteOutlined fontSize="small" />
+                            )}
+                          </IconButton>
+                        )}
+                        {isAdmin && onDeleteTag && (
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            size="small"
+                            onClick={() => handleDeleteTag(tag)}
+                            color="error"
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        )}
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                  No tags in this group
+                </Typography>
+              )}
+            </Box>
+          )}
 
           {isAdmin && editMode && onAddTag && (
             <Box sx={{ px: 3, py: 2, borderTop: '1px solid #eee' }}>
@@ -407,7 +434,7 @@ export function TagPage({
                   label="New Tag Name"
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddNewTag();
@@ -427,14 +454,11 @@ export function TagPage({
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>{isAdmin ? 'Cancel' : 'Close'}</Button>
-          {isAdmin && (
-            <Button variant="contained" onClick={handleSave}>
-              Save
-            </Button>
-          )}
-        </DialogActions>
+        {editMode && (
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Close</Button>
+          </DialogActions>
+        )}
       </Dialog>
 
       {/* Tag Dialog */}
