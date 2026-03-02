@@ -146,16 +146,6 @@ export function TagPage({
     }
   };
 
-  const handleCancelEdits = () => {
-    if (selectedGroup) {
-      setGroupName(selectedGroup.name);
-      setGroupDescription(selectedGroup.description);
-    } else {
-      setGroupName('');
-      setGroupDescription('');
-    }
-  };
-
   const handleAddNewTag = async () => {
     if (!newTagName.trim()) {
       // eslint-disable-next-line no-alert
@@ -370,7 +360,7 @@ export function TagPage({
             />
             {isAdmin && (
               <DialogActions sx={{ px: 0 }}>
-                <Button onClick={handleCancelEdits}>Cancel</Button>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
                 <Button variant="contained" onClick={handleSave}>
                   Save
                 </Button>
