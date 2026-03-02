@@ -22,8 +22,8 @@ import {
 import { Upload } from '@mui/icons-material';
 import {
   parseCSVToPVsAsync,
-  createTagMapping,
   createValidationSummary,
+  validateCSVTags,
   ParsedCSVRow,
   ParseProgress,
 } from '../utils/csvParser';
@@ -109,55 +109,22 @@ export function CSVImportDialog({
           status: 'validating',
         });
 
-        // PERFORMANCE: Collect all rejected groups and values across all rows
-        // This validation ensures that only valid tag groups and values are imported
-        const allRejectedGroups = new Set<string>();
-        const allRejectedValues: Record<string, Set<string>> = {};
-
-        // PERFORMANCE: Process validation in chunks to prevent blocking the main thread
-        // Chunk size of 50 provides good balance between performance and responsiveness
-        const chunkSize = 50;
-        for (let start = 0; start < result.data.length; start += chunkSize) {
-          const chunk = result.data.slice(start, start + chunkSize);
-
-          // PERFORMANCE: Process each row in the current chunk
-          chunk.forEach((row) => {
-            const mapping = createTagMapping(row.groups, availableTagGroups);
-
-            // Collect rejected groups (groups that don't exist in backend)
-            mapping.rejectedGroups.forEach((group) => allRejectedGroups.add(group));
-
-            // Collect rejected values (values that don't exist for their group in backend)
-            Object.entries(mapping.rejectedValues).forEach(([group, values]) => {
-              if (!allRejectedValues[group]) {
-                allRejectedValues[group] = new Set();
-              }
-              values.forEach((value) => allRejectedValues[group].add(value));
+        const validationResults = await validateCSVTags(
+          result.data,
+          availableTagGroups,
+          (processedRows, totalRows) => {
+            setParsingProgress({
+              processedRows,
+              totalRows,
+              status: 'validating',
             });
-          });
+          }
+        );
 
-          // PERFORMANCE: Update progress indicator for real-time UI feedback
-          const processedRows = Math.min(start + chunk.length, result.data.length);
-          setParsingProgress({
-            processedRows,
-            totalRows: result.data.length,
-            status: 'validating',
-          });
-
-          // PERFORMANCE: Yield control to allow UI updates and prevent blocking
-          // This is crucial for maintaining responsive UI during validation of large datasets
-          // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
-          await new Promise((resolve) => setTimeout(resolve, 0));
-        }
-
-        // Convert sets to arrays
-        const rejectedGroups = Array.from(allRejectedGroups);
-        const rejectedValues: Record<string, string[]> = {};
-        Object.entries(allRejectedValues).forEach(([group, valueSet]) => {
-          rejectedValues[group] = Array.from(valueSet);
-        });
-
-        const summary = createValidationSummary(rejectedGroups, rejectedValues);
+        const summary = createValidationSummary(
+          validationResults.rejectedGroups,
+          validationResults.rejectedValues
+        );
         setValidationSummary(summary);
         setParsing(false);
         setParsingProgress(null);

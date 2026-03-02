@@ -279,3 +279,77 @@ export function createValidationSummary(
 
   return summaryParts.length > 0 ? summaryParts.join(' • ') : 'All groups and values are valid';
 }
+
+/**
+ * Bulk tag validation for CSV import
+ * Validates all CSV rows against available tag groups and provides progress feedback
+ *
+ * @param csvData - Array of parsed CSV rows with tag groups
+ * @param availableTagGroups - Available tag groups from backend
+ * @param onProgress - Optional callback for progress updates (processedRows, totalRows)
+ * @returns Validation results with rejected groups and values
+ */
+export interface BulkTagValidationResult {
+  rejectedGroups: string[];
+  rejectedValues: Record<string, string[]>;
+}
+
+export async function validateCSVTags(
+  csvData: ParsedCSVRow[],
+  availableTagGroups: Array<{
+    id: string;
+    name: string;
+    tags: Array<{ id: string; name: string }>;
+  }>,
+  onProgress?: (processedRows: number, totalRows: number) => void
+): Promise<BulkTagValidationResult> {
+  // Collect all rejected groups and values across all rows
+  const allRejectedGroups = new Set<string>();
+  const allRejectedValues: Record<string, Set<string>> = {};
+
+  // Process validation in chunks to prevent blocking the main thread
+  const chunkSize = 50;
+  const totalRows = csvData.length;
+
+  for (let start = 0; start < csvData.length; start += chunkSize) {
+    const chunk = csvData.slice(start, start + chunkSize);
+
+    // Process each row in the current chunk
+    chunk.forEach((row) => {
+      const mapping = createTagMapping(row.groups, availableTagGroups);
+
+      // Collect rejected groups (groups that don't exist in backend)
+      mapping.rejectedGroups.forEach((group) => allRejectedGroups.add(group));
+
+      // Collect rejected values (values that don't exist for their group in backend)
+      Object.entries(mapping.rejectedValues).forEach(([group, values]) => {
+        if (!allRejectedValues[group]) {
+          allRejectedValues[group] = new Set();
+        }
+        values.forEach((value) => allRejectedValues[group].add(value));
+      });
+    });
+
+    // Update progress indicator for real-time UI feedback
+    const processedRows = Math.min(start + chunk.length, totalRows);
+    if (onProgress) {
+      onProgress(processedRows, totalRows);
+    }
+
+    // Yield control to allow UI updates and prevent blocking
+    // eslint-disable-next-line no-await-in-loop, no-promise-executor-return
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  // Convert sets to arrays
+  const rejectedGroups = Array.from(allRejectedGroups);
+  const rejectedValues: Record<string, string[]> = {};
+  Object.entries(allRejectedValues).forEach(([group, valueSet]) => {
+    rejectedValues[group] = Array.from(valueSet);
+  });
+
+  return {
+    rejectedGroups,
+    rejectedValues,
+  };
+}
