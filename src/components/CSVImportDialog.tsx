@@ -109,17 +109,7 @@ export function CSVImportDialog({
           status: 'validating',
         });
 
-        const validationResults = await validateCSVTags(
-          result.data,
-          availableTagGroups,
-          (processedRows, totalRows) => {
-            setParsingProgress({
-              processedRows,
-              totalRows,
-              status: 'validating',
-            });
-          }
-        );
+        const validationResults = await validateCSVTags(result.data, availableTagGroups);
 
         const summary = createValidationSummary(
           validationResults.rejectedGroups,
