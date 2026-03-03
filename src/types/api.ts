@@ -61,6 +61,23 @@ export interface SnapshotDTO extends SnapshotSummaryDTO {
   pvValues: PVValueDTO[];
 }
 
+export interface RestoreRequestDTO {
+  pvIds?: string[];
+}
+
+export interface RestoreFailureDTO {
+  pvId: string;
+  pvName: string;
+  error: string;
+}
+
+export interface RestoreResultDTO {
+  totalPVs: number;
+  successCount: number;
+  failureCount: number;
+  failures: RestoreFailureDTO[];
+}
+
 export interface EpicsValueDTO {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;

@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Box, CircularProgress, Typography, Button } from '@mui/material';
 import { SnapshotDetailsPage } from '../pages';
+import { snapshotService } from '../services/snapshotService';
 import { Snapshot, PV, Severity, Status } from '../types';
 import { useSnapshot, snapshotKeys } from '../hooks';
 import { SnapshotDTO, PVValueDTO } from '../types/api';
@@ -108,10 +109,32 @@ function SnapshotDetails() {
     navigate({ to: '/snapshots' });
   }, [navigate, queryClient]);
 
-  const handleRestore = useCallback((pvs: PV[]) => {
-    // eslint-disable-next-line no-alert
-    alert(`Restoring ${pvs.length} PV(s) - This feature is not yet implemented`);
-  }, []);
+  const handleRestore = useCallback(
+    async (pvs: PV[]) => {
+      if (!id) return;
+
+      try {
+        // If user selected PVs, restore only those. If not, restore all
+        const request = pvs.length > 0 ? { pvIds: pvs.map((pv) => pv.uuid) } : undefined;
+
+        const result = await snapshotService.restoreSnapshot(id, request);
+
+        console.log('Restore successful:', result);
+
+        // Optional: temporary visual feedback
+        alert(
+          `Restore completed:\n` +
+            `${result.successCount}/${result.totalPVs} succeeded\n` +
+            `${result.failureCount} failed`
+        );
+      } catch (err) {
+        console.error('Failed to restore PVs:', err);
+
+        alert(err instanceof Error ? `Restore failed: ${err.message}` : 'Restore failed');
+      }
+    },
+    [id]
+  );
 
   const handleCompare = useCallback(
     (comparisonSnapshotId: string) => {

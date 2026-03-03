@@ -4,7 +4,14 @@
 
 import { API_CONFIG } from '../config/api';
 import { apiClient } from './apiClient';
-import { SnapshotDTO, SnapshotSummaryDTO, NewSnapshotDTO, JobCreatedDTO } from '../types';
+import {
+  SnapshotDTO,
+  SnapshotSummaryDTO,
+  NewSnapshotDTO,
+  JobCreatedDTO,
+  RestoreResultDTO,
+  RestoreRequestDTO,
+} from '../types';
 
 export const snapshotService = {
   /**
@@ -71,6 +78,22 @@ export const snapshotService = {
     return apiClient.put<SnapshotSummaryDTO>(
       `${API_CONFIG.endpoints.snapshots}/${snapshotId}`,
       data
+    );
+  },
+
+  /**
+   * Restore PV values from a previously saved snapshot
+   *
+   * @param snapshotId - The snapshot ID to restore from
+   * @param request - Specific PVs to restore (undefined = all)
+   */
+  async restoreSnapshot(
+    snapshotId: string,
+    request?: RestoreRequestDTO
+  ): Promise<RestoreResultDTO> {
+    return apiClient.post<RestoreResultDTO>(
+      `${API_CONFIG.endpoints.snapshots}/${snapshotId}/restore`,
+      request
     );
   },
 

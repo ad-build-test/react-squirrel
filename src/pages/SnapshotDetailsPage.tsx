@@ -25,7 +25,7 @@ import { SnapshotSummaryDTO } from '../types/api';
 interface SnapshotDetailsPageProps {
   snapshot: Snapshot | null;
   onBack: () => void;
-  onRestore?: (pvs: PV[]) => void;
+  onRestore?: (pvs: PV[]) => Promise<void>;
   onCompare?: (comparisonSnapshotId: string) => void;
 }
 
@@ -127,9 +127,9 @@ export function SnapshotDetailsPage({
     setShowRestoreDialog(true);
   };
 
-  const confirmRestore = () => {
+  const confirmRestore = async () => {
     if (onRestore) {
-      onRestore(pvsToRestore);
+      await onRestore(pvsToRestore);
     }
     setShowRestoreDialog(false);
   };
