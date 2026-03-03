@@ -14,6 +14,7 @@ import { Route as SnapshotsRouteImport } from './routes/snapshots'
 import { Route as SnapshotDetailsRouteImport } from './routes/snapshot-details'
 import { Route as PvBrowserRouteImport } from './routes/pv-browser'
 import { Route as ComparisonRouteImport } from './routes/comparison'
+import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TagsRoute = TagsRouteImport.update({
@@ -41,6 +42,11 @@ const ComparisonRoute = ComparisonRouteImport.update({
   path: '/comparison',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiKeysRoute = ApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
   '/comparison': typeof ComparisonRoute
   '/pv-browser': typeof PvBrowserRoute
   '/snapshot-details': typeof SnapshotDetailsRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
   '/comparison': typeof ComparisonRoute
   '/pv-browser': typeof PvBrowserRoute
   '/snapshot-details': typeof SnapshotDetailsRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api-keys': typeof ApiKeysRoute
   '/comparison': typeof ComparisonRoute
   '/pv-browser': typeof PvBrowserRoute
   '/snapshot-details': typeof SnapshotDetailsRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api-keys'
     | '/comparison'
     | '/pv-browser'
     | '/snapshot-details'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api-keys'
     | '/comparison'
     | '/pv-browser'
     | '/snapshot-details'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api-keys'
     | '/comparison'
     | '/pv-browser'
     | '/snapshot-details'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiKeysRoute: typeof ApiKeysRoute
   ComparisonRoute: typeof ComparisonRoute
   PvBrowserRoute: typeof PvBrowserRoute
   SnapshotDetailsRoute: typeof SnapshotDetailsRoute
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComparisonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiKeysRoute: ApiKeysRoute,
   ComparisonRoute: ComparisonRoute,
   PvBrowserRoute: PvBrowserRoute,
   SnapshotDetailsRoute: SnapshotDetailsRoute,

@@ -18,12 +18,14 @@ import {
   PhotoCamera as CameraIcon,
   Search as SearchIcon,
   Label as LabelIcon,
+  Key as KeyIcon,
   ChevronLeft as ChevronLeftIcon,
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useSnapshot } from '../contexts';
+import { useAdminMode } from '../contexts/AdminModeContext';
 
 const SIDEBAR_WIDTH_EXPANDED = 240;
 const SIDEBAR_WIDTH_COLLAPSED = 60;
@@ -65,12 +67,15 @@ export function Sidebar({ open, onToggle, onSaveSnapshot }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { snapshotProgress, clearSnapshot } = useSnapshot();
+  const { isAdminMode } = useAdminMode();
 
   const menuItems = [
     { title: 'View Snapshots', icon: <ApertureIcon />, path: '/snapshots' },
     { title: 'Browse PVs', icon: <SearchIcon />, path: '/pv-browser' },
     { title: 'Configure Tags', icon: <LabelIcon />, path: '/tags' },
   ];
+
+  const adminMenuItems = [{ title: 'Manage API Keys', icon: <KeyIcon />, path: '/api-keys' }];
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -184,6 +189,42 @@ export function Sidebar({ open, onToggle, onSaveSnapshot }: SidebarProps) {
             </ListItemButton>
           </ListItem>
         ))}
+
+        {/* Admin only Navigation Menu Items */}
+        {isAdminMode && <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', my: 1 }} />}
+        {isAdminMode &&
+          adminMenuItems.map((item) => (
+            <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                sx={{
+                  borderRadius: 1,
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2,
+                  backgroundColor: isActive(item.path)
+                    ? 'rgba(255, 255, 255, 0.15)'
+                    : 'transparent',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 2 : 'auto',
+                    justifyContent: 'center',
+                    color: 'white',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {open && <ListItemText primary={item.title} sx={{ color: 'white' }} />}
+              </ListItemButton>
+            </ListItem>
+          ))}
       </List>
 
       {/* Snapshot Status and Save Button at Bottom */}
