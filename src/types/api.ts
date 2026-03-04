@@ -155,6 +155,29 @@ export interface FindParameter {
 }
 
 /**
+ * API Key DTOs - matches backend app/schemas/api_key.py
+ */
+export interface ApiKeyCreateDTO {
+  appName: string;
+  readAccess: boolean;
+  writeAccess: boolean;
+}
+
+export interface ApiKeyDTO {
+  id: string;
+  appName: string;
+  isActive: boolean;
+  readAccess: boolean;
+  writeAccess: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiKeyCreateResultDTO extends ApiKeyDTO {
+  token: string;
+}
+
+/**
  * Job DTOs for async task tracking
  */
 export interface JobDTO {

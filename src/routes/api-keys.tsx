@@ -1,10 +1,20 @@
+import { useState, useCallback, useEffect } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
 import { useAdminMode } from '../contexts/AdminModeContext';
+import { ApiKeysPage } from '../pages';
+import { apiKeyService } from '../services/apiKeyService';
+import { ApiKeyDTO } from '../types';
 
 function ApiKeys() {
+  const [apiKeys, setApiKeys] = useState<ApiKeyDTO[]>([]);
   const { isAdminMode } = useAdminMode();
   const navigate = useNavigate();
+
+  const fetchApiKeys = useCallback(async () => {
+    const keys = await apiKeyService.listAllKeys();
+    setApiKeys(keys);
+    console.log('Fetched API Keys:', keys);
+  }, []);
 
   useEffect(() => {
     if (!isAdminMode) {
@@ -12,9 +22,13 @@ function ApiKeys() {
     }
   }, [isAdminMode, navigate]);
 
+  useEffect(() => {
+    fetchApiKeys();
+  }, [fetchApiKeys]);
+
   if (!isAdminMode) return null;
 
-  return <div>Hello /api-keys !</div>;
+  return <ApiKeysPage apiKeys={apiKeys} />;
 }
 
 export const Route = createFileRoute('/api-keys')({

@@ -12,6 +12,7 @@ export const API_CONFIG = {
     pvs: '/v1/pvs',
     tags: '/v1/tags',
     jobs: '/v1/jobs',
+    apiKeys: '/v1/api-keys',
   },
   timeout: 30000, // 30 seconds
 };
