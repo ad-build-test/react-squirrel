@@ -4,6 +4,7 @@
  */
 
 import { EpicsData } from '../types';
+import { getWebSocketURL } from '../config/api';
 
 type PVUpdateCallback = (pvName: string, value: EpicsData) => void;
 type ConnectionCallback = (connected: boolean) => void;
@@ -208,9 +209,7 @@ class WebSocketService {
   // Private methods
 
   private static getDefaultWsUrl(): string {
-    // Use same host - Vite proxy will forward WebSocket connections
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}/v1/ws/pvs`;
+    return getWebSocketURL('/v1/ws/pvs');
   }
 
   private sendSubscribe(pvNames: string[]): void {

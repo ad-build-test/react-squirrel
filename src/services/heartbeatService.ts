@@ -5,6 +5,8 @@
  * This catches the case where the monitor process dies silently.
  */
 
+import { API_CONFIG } from '../config/api';
+
 type HeartbeatCallback = (isAlive: boolean, ageSeconds: number | null) => void;
 
 interface HeartbeatState {
@@ -54,7 +56,7 @@ class HeartbeatService {
    */
   private async checkHeartbeat(): Promise<void> {
     try {
-      const response = await fetch('/v1/health/heartbeat');
+      const response = await fetch(`${API_CONFIG.baseURL}/v1/health/heartbeat`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);

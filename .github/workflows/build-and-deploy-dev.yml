@@ -1,0 +1,101 @@
+name: Build and Deploy to Dev
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  deployments: write
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    outputs:
+      rpm_name: ${{ steps.find-rpm.outputs.rpm_name }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        run: echo "image_tag=dev-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install pnpm dependencies with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23.11.0
+          cache: pnpm
+      - run: pnpm install
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.93.1
+
+      - name: Install dependencies (ubuntu only)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev
+
+      - name: Install Tauri
+        run: pnpm add -D @tauri-apps/cli@1
+
+      - name: Configure Tauri
+        run: |
+          pnpm tauri init \
+            --app-name "Squirrel" \
+            --window-title "Squirrel" \
+            --dist-dir ../dist \
+            --dev-path http://localhost:5173 \
+            --before-dev-command "pnpm dev" \
+            --before-build-command "pnpm build"
+
+      - name: Build Tauri package
+        id: build
+        uses: tauri-apps/tauri-action@v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >-
+            --bundles rpm
+            --config {"tauri":{"bundle":{"identifier":"edu.stanford.slac.squirrel"},"allowlist":{"fs":{"readFile":true,"scope":["$RESOURCE/*"]},"path":{"all":true}}}}
+
+      - name: Find RPM file
+        id: find-rpm
+        run: |
+          RPM_PATH=$(ls src-tauri/target/release/bundle/rpm/*.rpm)
+          RPM_NAME=$(basename "$RPM_PATH")
+          echo "rpm_name=$RPM_NAME" >> $GITHUB_OUTPUT
+          echo "rpm_path=$RPM_PATH" >> $GITHUB_OUTPUT
+          echo "Found RPM: $RPM_NAME"
+
+      - name: Create/update dev-latest pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-latest
+          name: Dev Latest
+          prerelease: true
+          files: ${{ steps.find-rpm.outputs.rpm_path }}
+          body: |
+            Rolling dev build from main branch.
+            Commit: ${{ github.sha }}
+            Built: ${{ github.event.head_commit.timestamp }}
+
+  deploy:
+    needs: build
+    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@main
+    with:
+      deploy_to_dev: true
+      tag: ${{ needs.build.outputs.image_tag }}
+      deployment_type: app
+      artifact_url: ${{ github.server_url }}/${{ github.repository }}/releases/download/dev-latest/${{ needs.build.outputs.rpm_name }}
+      artifact_type: rpm

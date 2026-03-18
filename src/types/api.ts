@@ -1,5 +1,5 @@
 /**
- * API type definitions matching score-backend DTOs
+ * API type definitions matching squirrel-backend DTOs
  */
 
 /**

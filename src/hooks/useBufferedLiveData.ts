@@ -10,6 +10,7 @@
  */
 
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import { getWebSocketURL } from '../config/api';
 
 export interface PVUpdate {
   value: unknown;
@@ -62,11 +63,7 @@ export function useBufferedLiveData({
   pvNames,
   enabled = true,
 }: UseBufferedLiveDataOptions): UseBufferedLiveDataReturn {
-  // Build WebSocket URL
-  const defaultWsUrl = useMemo(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}/v1/ws/live`;
-  }, []);
+  const defaultWsUrl = useMemo(() => getWebSocketURL('/v1/ws/live'), []);
 
   const effectiveWsUrl = wsUrl ?? defaultWsUrl;
 

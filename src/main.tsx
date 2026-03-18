@@ -6,6 +6,7 @@ import { HeartbeatProvider } from './contexts/HeartbeatContext';
 import { LivePVProvider } from './contexts/LivePVContext';
 import { SnapshotProvider } from './contexts/SnapshotContext';
 import { AdminModeProvider } from './contexts/AdminModeContext';
+import { loadRuntimeConfig } from './config/api';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
@@ -32,18 +33,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AdminModeProvider>
-        <HeartbeatProvider pollIntervalMs={2000}>
-          <LivePVProvider pollInterval={2000}>
-            <SnapshotProvider>
-              <RouterProvider router={router} />
-            </SnapshotProvider>
-          </LivePVProvider>
-        </HeartbeatProvider>
-      </AdminModeProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+// Load runtime config (reads config.json in Tauri, no-ops in dev) then render.
+// Errors inside loadRuntimeConfig are caught internally; the .catch here guards
+// against unexpected failures so the app still renders with fallback config.
+loadRuntimeConfig()
+  .catch(() => {
+    // eslint-disable-next-line no-console
+    console.warn('Runtime config loading failed unexpectedly, using defaults');
+  })
+  .then(() => {
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <React.StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <AdminModeProvider>
+            <HeartbeatProvider pollIntervalMs={2000}>
+              <LivePVProvider pollInterval={2000}>
+                <SnapshotProvider>
+                  <RouterProvider router={router} />
+                </SnapshotProvider>
+              </LivePVProvider>
+            </HeartbeatProvider>
+          </AdminModeProvider>
+        </QueryClientProvider>
+      </React.StrictMode>
+    );
+  });

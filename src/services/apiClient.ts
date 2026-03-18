@@ -1,24 +1,16 @@
 /**
- * Base API client for making HTTP requests to score-backend
+ * Base API client for making HTTP requests to squirrel-backend
  */
 
 import { API_CONFIG, ApiResultResponse } from '../config/api';
 
 class APIClient {
-  private baseURL: string;
-
-  private timeout: number;
-
-  constructor() {
-    this.baseURL = API_CONFIG.baseURL;
-    this.timeout = API_CONFIG.timeout;
-  }
-
+  // eslint-disable-next-line class-methods-use-this
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
+    const url = `${API_CONFIG.baseURL}${endpoint}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
     try {
       const response = await fetch(url, {
