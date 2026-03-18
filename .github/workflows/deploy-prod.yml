@@ -1,0 +1,60 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      deploy_to_lcls:
+        description: 'Deploy to LCLS'
+        required: false
+        type: boolean
+        default: true
+      deploy_to_facet:
+        description: 'Deploy to FACET'
+        required: false
+        type: boolean
+        default: false
+      deploy_to_testfac:
+        description: 'Deploy to TESTFAC'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  deployments: write
+  contents: read
+  actions: read
+
+jobs:
+  find-rpm:
+    runs-on: ubuntu-latest
+    outputs:
+      rpm_name: ${{ steps.find.outputs.rpm_name }}
+    steps:
+      - name: Find RPM asset in release
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RPM_NAME=$(gh release view "${{ inputs.release_tag }}" --repo "${{ github.repository }}" --json assets --jq '.assets[] | select(.name | endswith(".rpm")) | .name')
+          if [ -z "$RPM_NAME" ]; then
+            echo "Error: No RPM found in release ${{ inputs.release_tag }}"
+            exit 1
+          fi
+          echo "rpm_name=$RPM_NAME" >> $GITHUB_OUTPUT
+          echo "Found RPM: $RPM_NAME"
+
+  deploy:
+    needs: find-rpm
+    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@main
+    with:
+      deploy_to_lcls: ${{ inputs.deploy_to_lcls }}
+      deploy_to_facet: ${{ inputs.deploy_to_facet }}
+      deploy_to_testfac: ${{ inputs.deploy_to_testfac }}
+      tag: ${{ inputs.release_tag }}
+      deployment_type: app
+      artifact_url: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/${{ needs.find-rpm.outputs.rpm_name }}
+      artifact_type: rpm
