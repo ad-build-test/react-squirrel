@@ -49,7 +49,7 @@ jobs:
 
   deploy:
     needs: find-rpm
-    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@main
+    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@yektay/rpm_module
     with:
       deploy_to_lcls: ${{ inputs.deploy_to_lcls }}
       deploy_to_facet: ${{ inputs.deploy_to_facet }}
