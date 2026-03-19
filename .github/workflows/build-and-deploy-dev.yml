@@ -27,7 +27,7 @@ jobs:
         run: echo "image_tag=dev-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: ad-build-test/action-setup@v4
         with:
           run_install: false
 
@@ -39,7 +39,7 @@ jobs:
       - run: pnpm install
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: ad-build-test/rust-toolchain@stable
 
       - name: Install dependencies (ubuntu only)
         run: |
@@ -61,7 +61,7 @@ jobs:
 
       - name: Build Tauri package
         id: build
-        uses: tauri-apps/tauri-action@v0.6.1
+        uses: ad-build-test/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -79,7 +79,7 @@ jobs:
           echo "Found RPM: $RPM_NAME"
 
       - name: Create/update dev-latest pre-release
-        uses: softprops/action-gh-release@v2
+        uses: ad-build-test/action-gh-release@v2
         with:
           tag_name: dev-latest
           name: Dev Latest
