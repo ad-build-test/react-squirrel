@@ -54,7 +54,8 @@ class HeartbeatService {
    */
   private async checkHeartbeat(): Promise<void> {
     try {
-      const response = await fetch('/v1/health/heartbeat');
+      const { API_CONFIG } = await import('../config/api');
+      const response = await fetch(`${API_CONFIG.baseURL}/v1/health/heartbeat`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
