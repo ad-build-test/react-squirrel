@@ -66,6 +66,7 @@ jobs:
         uses: ad-build-test/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_URL: http://lcls-dev9:8080
         with:
           args: >-
             --bundles rpm
