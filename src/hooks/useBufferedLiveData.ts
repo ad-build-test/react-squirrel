@@ -10,6 +10,7 @@
  */
 
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
+import { API_CONFIG } from '../config/api';
 
 export interface PVUpdate {
   value: unknown;
@@ -64,6 +65,11 @@ export function useBufferedLiveData({
 }: UseBufferedLiveDataOptions): UseBufferedLiveDataReturn {
   // Build WebSocket URL
   const defaultWsUrl = useMemo(() => {
+    if (API_CONFIG.baseURL) {
+      const url = new URL(API_CONFIG.baseURL);
+      const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${protocol}//${url.host}/v1/ws/live`;
+    }
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     return `${protocol}//${window.location.host}/v1/ws/live`;
   }, []);
