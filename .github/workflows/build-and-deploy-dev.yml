@@ -40,6 +40,8 @@ jobs:
 
       - name: Install Rust stable
         uses: ad-build-test/rust-toolchain@stable
+        with:
+          toolchain: 1.93.1
 
       - name: Install dependencies (ubuntu only)
         run: |
