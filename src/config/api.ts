@@ -2,11 +2,12 @@
  * API configuration for score-backend
  * Based on configuration from superscore/squirrel-local.cfg
  *
- * Note: baseURL is empty because Vite proxy handles forwarding /v1/* to http://localhost:8080
+ * In dev mode, Vite proxy forwards /v1/* to http://localhost:8080.
+ * In production (Tauri), VITE_API_URL is set at build time per facility.
  */
 
 export const API_CONFIG = {
-  baseURL: '', // Empty to use Vite proxy
+  baseURL: import.meta.env.VITE_API_URL || '',
   endpoints: {
     snapshots: '/v1/snapshots',
     pvs: '/v1/pvs',

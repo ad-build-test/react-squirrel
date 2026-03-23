@@ -52,7 +52,7 @@ export function LivePVProvider({
 
     try {
       // Use POST to avoid URL length limits with many PVs
-      const response = await fetch(`${API_CONFIG.endpoints.pvs}/live`, {
+      const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.pvs}/live`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
