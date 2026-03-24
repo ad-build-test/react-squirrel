@@ -1,9 +1,11 @@
 name: Build and Deploy to Dev
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+      - yektay/rpm_module
 
 permissions:
   contents: write
@@ -92,7 +94,7 @@ jobs:
 
   deploy:
     needs: build
-    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@main
+    uses: ad-build-test/build-system-playbooks/.github/workflows/request-deployment.yml@yektay/rpm_module
     with:
       deploy_to_dev: true
       tag: ${{ needs.build.outputs.image_tag }}
